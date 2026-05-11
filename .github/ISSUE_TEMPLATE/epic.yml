@@ -1,0 +1,80 @@
+name: Epic
+description: Grand chantier parent qui regroupe plusieurs user stories et taches
+title: "[Epic] "
+labels:
+  - epic
+body:
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Phase
+      description: Choisir la phase du projet concernee
+      options:
+        - Phase 1
+        - Phase 2
+    validations:
+      required: true
+
+  - type: dropdown
+    id: etape
+    attributes:
+      label: Etape
+      description: Reporter aussi cette valeur dans le champ Projet "Etape"
+      options:
+        - A
+        - B
+        - C
+        - D
+    validations:
+      required: true
+
+  - type: input
+    id: estimation
+    attributes:
+      label: Estimation
+      description: Reporter aussi cette valeur dans le champ Projet "Estimation"
+      placeholder: "Ex. 6"
+    validations:
+      required: true
+
+  - type: textarea
+    id: objectif
+    attributes:
+      label: Objectif
+      description: Resultat concret attendu pour cette Epic
+      placeholder: "Ex. Cadrer le besoin, valider le probleme et produire un PRD lean."
+    validations:
+      required: true
+
+  - type: textarea
+    id: valeur
+    attributes:
+      label: Valeur apportee
+      description: Pourquoi ce chantier est important pour le produit ou la phase
+      placeholder: "Ex. Cette Epic pose les fondations du projet et permet de verifier que le probleme merite d'etre traite."
+    validations:
+      required: true
+
+  - type: textarea
+    id: definition_of_done
+    attributes:
+      label: Definition of Done
+      value: |
+        - [ ] Le resultat attendu est clairement decrit
+        - [ ] Les livrables cibles sont identifies
+        - [ ] Les issues enfants ont ete creees
+        - [ ] L'Epic est rattachee au bon milestone
+        - [ ] Les champs Projet sont renseignes
+    validations:
+      required: true
+
+  - type: textarea
+    id: child_items
+    attributes:
+      label: User stories et taches liees
+      description: Ajoute ensuite les references #123 une fois les issues enfants creees
+      value: |
+        ## User Stories et taches de cette Epic
+        - [ ] #00 A remplacer par une issue enfant
+    validations:
+      required: true

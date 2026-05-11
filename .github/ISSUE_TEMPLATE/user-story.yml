@@ -1,0 +1,99 @@
+name: User Story
+description: Besoin exprime du point de vue utilisateur
+title: "[US] "
+labels:
+  - user-story
+body:
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Phase
+      options:
+        - Phase 1
+        - Phase 2
+    validations:
+      required: true
+
+  - type: dropdown
+    id: etape
+    attributes:
+      label: Etape
+      description: Reporter aussi cette valeur dans le champ Projet "Etape"
+      options:
+        - A
+        - B
+        - C
+        - D
+    validations:
+      required: true
+
+  - type: input
+    id: estimation
+    attributes:
+      label: Estimation
+      description: Reporter aussi cette valeur dans le champ Projet "Estimation"
+      placeholder: "Ex. 3"
+    validations:
+      required: true
+
+  - type: input
+    id: epic_reference
+    attributes:
+      label: Epic parente
+      description: Reference l'Epic parent, par exemple #12
+      placeholder: "#12"
+    validations:
+      required: true
+
+  - type: input
+    id: role
+    attributes:
+      label: Role
+      placeholder: "Ex. apprenant DevOps debutant"
+    validations:
+      required: true
+
+  - type: input
+    id: action
+    attributes:
+      label: Action
+      placeholder: "Ex. consulter la liste des modules"
+    validations:
+      required: true
+
+  - type: input
+    id: benefit
+    attributes:
+      label: Benefice
+      placeholder: "Ex. savoir par ou commencer"
+    validations:
+      required: true
+
+  - type: textarea
+    id: user_story
+    attributes:
+      label: Formulation complete
+      description: Format obligatoire
+      value: |
+        En tant que ..., je veux ..., afin de ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Criteres d'acceptation
+      description: Utiliser de preference des scenarios Gherkin ou des checks observables
+      value: |
+        ## Criteres d'acceptation
+        - [ ] Given ...
+        - [ ] When ...
+        - [ ] Then ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Contexte, dependances, hypotheses ou liens utiles

@@ -1,0 +1,80 @@
+name: Task
+description: Tache technique, documentaire ou de conception
+title: "[Task] "
+labels:
+  - task
+body:
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Phase
+      options:
+        - Phase 1
+        - Phase 2
+    validations:
+      required: true
+
+  - type: dropdown
+    id: etape
+    attributes:
+      label: Etape
+      description: Reporter aussi cette valeur dans le champ Projet "Etape"
+      options:
+        - A
+        - B
+        - C
+        - D
+    validations:
+      required: true
+
+  - type: input
+    id: estimation
+    attributes:
+      label: Estimation
+      description: Reporter aussi cette valeur dans le champ Projet "Estimation"
+      placeholder: "Ex. 2"
+    validations:
+      required: true
+
+  - type: input
+    id: parent_reference
+    attributes:
+      label: Issue parente
+      description: Reference l'Epic ou la User Story parent, par exemple #12
+      placeholder: "#12"
+    validations:
+      required: true
+
+  - type: textarea
+    id: objectif
+    attributes:
+      label: Objectif
+      placeholder: "Ex. Rediger docs/recherche-jtbd.md avec au moins 3 sources documentees."
+    validations:
+      required: true
+
+  - type: textarea
+    id: livrable
+    attributes:
+      label: Livrable attendu
+      placeholder: "Ex. Un document versionne dans docs/ ou un diagramme exporte dans docs/diagrams/."
+    validations:
+      required: true
+
+  - type: textarea
+    id: checklist
+    attributes:
+      label: Checklist
+      value: |
+        - [ ] Le perimetre est clair
+        - [ ] Le livrable cible est identifie
+        - [ ] Le ticket est lie au bon milestone
+        - [ ] Les champs Projet sont renseignes
+    validations:
+      required: true
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependances et notes
+      description: Preciser ce qui bloque ou ce qui doit etre pret avant cette tache
