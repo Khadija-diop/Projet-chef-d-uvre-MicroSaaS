@@ -1,0 +1,37 @@
+@startuml
+skinparam shadowing false
+skinparam packageStyle rectangle
+
+node "Navigateur web" as Browser {
+  artifact "UI utilisateur"
+}
+
+node "Reverse-proxy" as Proxy {
+  artifact "Routage des requetes"
+}
+
+node "Frontend" as Frontend {
+  artifact "SPA Next.js"
+}
+
+node "Backend (API)" as Backend {
+  artifact "API Node.js + Express"
+  artifact "Services metier"
+}
+
+database "Database" as Database {
+  artifact "PostgreSQL"
+  artifact "Schema relationnel"
+}
+
+Browser --> Proxy : HTTPS / HTTP
+Proxy --> Frontend : HTTP\nfichiers statiques
+Proxy --> Backend : HTTP/JSON
+Backend --> Database : SQL
+
+note right of Proxy
+  Nœud logique simplifie pour la Phase 1.
+  Le detail physique du VPS, des conteneurs
+  et du HTTPS sera precise en Phase 2.
+end note
+@enduml
