@@ -38,7 +38,7 @@ Le Lab DevOps Securise repond a ce besoin en fournissant un terrain d'experiment
 
 La cible principale du projet est pedagogique :
 
-- l'auteur·rice du projet
+- Moi 
 - les apprenant·es debutant·es en DevOps
 - le jury CDA
 - les pair·es ou formateur·rices qui evaluent la coherence technique, documentaire et DevOps
@@ -145,6 +145,8 @@ projet-chef-oeuvre-microsaas/
     ├── benchmark.md
     ├── moodboard.md
     ├── PITCH.pdf               support du pitch oral
+    ├── DATA_MODEL.md           MERISE (MCD / MLD) + lien diagrammes + MPD
+    ├── MPD.sql                 DDL PostgreSQL (modele physique)
     └── diagrams/
         ├── use-cases.png       diagramme de cas d'utilisation
         ├── deployment.png      diagramme de deploiement UML

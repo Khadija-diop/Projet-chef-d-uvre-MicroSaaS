@@ -1,0 +1,47 @@
+@startuml
+left to right direction
+skinparam shadowing false
+skinparam linetype ortho
+
+entity "UTILISATEUR" as USER {
+  * id
+  --
+  email
+  password_hash
+  role
+  created_at
+  updated_at
+}
+
+entity "MODULE" as MODULE {
+  * id
+  --
+  title
+  short_description
+  learning_objective
+  display_order
+  publication_status
+  created_at
+  updated_at
+}
+
+entity "RESSOURCE" as RESOURCE {
+  * id
+  --
+  title
+  resource_type
+  url
+  display_order
+  created_at
+}
+
+entity "PROGRESSION" as PROGRESS {
+  --
+  status
+  updated_at
+}
+
+USER ||--o{ PROGRESS : suit
+MODULE ||--o{ PROGRESS : concerne
+MODULE ||--o{ RESOURCE : contient
+@enduml

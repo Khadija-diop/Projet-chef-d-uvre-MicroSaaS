@@ -71,10 +71,10 @@ body:
   - type: textarea
     id: child_items
     attributes:
-      label: User stories et taches liees
-      description: Ajoute ensuite les references #123 une fois les issues enfants creees
+      label: User stories liees
+      description: L'Epic regroupe uniquement des user stories. Les bugs, features et taches se rattachent plus bas dans la hierarchie.
       value: |
-        ## User Stories et taches de cette Epic
-        - [ ] #00 A remplacer par une issue enfant
+        ## User stories de cette Epic
+        - [ ] #00 A remplacer par une user story enfant
     validations:
       required: true
