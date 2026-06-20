@@ -1,0 +1,43 @@
+@startuml
+skinparam shadowing false
+autonumber
+
+actor "Apprenant·e" as Learner
+participant "Frontend (SPA)" as Frontend
+participant "API (Express)" as API
+participant "Service metier\nProgression" as Service
+database "PostgreSQL" as DB
+
+note over Learner, Frontend
+  Fonctionnalite principale V1 :
+  enregistrer la progression d'un module comme termine.
+  Comportement metier, sans detail d'interaction UI.
+end note
+
+Learner -> Frontend : demander de marquer le module comme termine
+activate Frontend
+
+Frontend -> API : demander l'enregistrement de la progression\n(PATCH /api/progress/{moduleId})
+activate API
+
+API -> API : verifier l'authentification\net le role apprenant
+
+API -> Service : enregistrer le module comme termine\n(utilisateur, module)
+activate Service
+
+Service -> DB : lire la progression existante\n(user_id, module_id)
+DB --> Service : aucune ligne ou progression existante
+
+Service -> DB : creer ou mettre a jour la progression\nstatut = termine
+DB --> Service : progression persistee
+
+Service --> API : progression a jour\net indicateurs agrege·s si necessaire
+deactivate Service
+
+API --> Frontend : reponse de succes\navec donnees de progression
+deactivate API
+
+Frontend --> Learner : restituer la progression\n(modules termines / restants)
+deactivate Frontend
+
+@enduml

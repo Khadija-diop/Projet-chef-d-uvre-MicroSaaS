@@ -93,6 +93,17 @@ body:
       required: true
 
   - type: textarea
+    id: child_items
+    attributes:
+      label: Issues liees
+      description: Bugs, features, enhancements et autres issues concretes rattachees a cette user story
+      value: |
+        ## Issues de cette User Story
+        - [ ] #00 A remplacer par une issue enfant
+    validations:
+      required: true
+
+  - type: textarea
     id: notes
     attributes:
       label: Notes
