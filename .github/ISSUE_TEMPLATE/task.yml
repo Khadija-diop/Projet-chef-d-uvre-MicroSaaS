@@ -40,7 +40,7 @@ body:
     id: parent_reference
     attributes:
       label: Issue parente
-      description: Reference l'Epic ou la User Story parent, par exemple #12
+      description: Reference l'issue parent (bug, feature, enhancement...), par exemple #12
       placeholder: "#12"
     validations:
       required: true

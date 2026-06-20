@@ -3,32 +3,48 @@ left to right direction
 skinparam shadowing false
 skinparam packageStyle rectangle
 
-actor "Visiteur·se" as Visitor
-actor "Apprenant·e\nauthentifie·e" as Learner
-actor "Administrateur·rice" as Admin
+skinparam rectangle {
+  BackgroundColor #ADD8E6
+  BorderColor Black
+  RoundCorner 8
+}
+skinparam usecase {
+  BackgroundColor White
+  BorderColor Black
+  FontColor Black
+}
+skinparam actor {
+  FontColor Black
+}
+actor "Admin" as Admin
+actor "Apprenant.e" as Learner
+actor "Visiteur.se" as Visitor
 
 rectangle "Parcours DevOps Guide" {
-  usecase "Consulter la presentation\ndu produit" as UC1
-  usecase "Creer un compte\net se connecter" as UC2
-  usecase "Consulter la liste\ndes modules" as UC3
-  usecase "Consulter le detail\nd'un module" as UC4
-  usecase "Marquer un module\ncomme termine" as UC5
-  usecase "Consulter sa\nprogression" as UC6
-  usecase "Creer ou modifier\nun module" as UC7
   usecase "Publier ou masquer\nun module" as UC8
+  usecase "Créer ou modifier\nun module" as UC7
+
+
+  usecase "Consulter la liste\ndes modules" as UC3
+  usecase "Consulter le détail\nd'un module" as UC4
+  usecase "Consulter sa\nprogression" as UC6
+  usecase "Marquer un module\ncomme termine" as UC5
+
+    usecase "Creer un compte/\nse connecter" as UC2
+  usecase "Consulter la presentation\ndu produit" as UC1
 }
 
-Visitor --> UC1
-Visitor --> UC2
 
-Learner --> UC3
-Learner --> UC4
-Learner --> UC5
-Learner --> UC6
 
-Admin --> UC7
-Admin --> UC8
+Learner -- UC3
+Learner -- UC4
+Learner -- UC6
+Learner -- UC5
 
+Admin -- UC8
+Admin -- UC7
+Visitor -- UC2
+Visitor -- UC1
 Learner --|> Visitor
 Admin --|> Learner
 

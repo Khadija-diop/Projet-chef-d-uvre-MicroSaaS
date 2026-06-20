@@ -1,0 +1,98 @@
+name: Issue
+description: Bug, feature, enhancement ou travail concret rattache a une user story
+title: "[Feature] "
+labels:
+  - issue
+body:
+  - type: dropdown
+    id: type
+    attributes:
+      label: Type
+      description: Ajuster le prefixe du titre selon le type ([Bug], [Feature], [Enhancement], [Chore], [Spike]) et ajouter le label correspondant
+      options:
+        - Feature
+        - Bug
+        - Enhancement
+        - Chore
+        - Spike
+    validations:
+      required: true
+
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Phase
+      options:
+        - Phase 1
+        - Phase 2
+    validations:
+      required: true
+
+  - type: dropdown
+    id: etape
+    attributes:
+      label: Etape
+      description: Reporter aussi cette valeur dans le champ Projet "Etape"
+      options:
+        - A
+        - B
+        - C
+        - D
+    validations:
+      required: true
+
+  - type: input
+    id: estimation
+    attributes:
+      label: Estimation
+      description: Reporter aussi cette valeur dans le champ Projet "Estimation"
+      placeholder: "Ex. 3"
+    validations:
+      required: true
+
+  - type: input
+    id: user_story_reference
+    attributes:
+      label: User Story parente
+      description: Reference la User Story parent, par exemple #12
+      placeholder: "#12"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Contexte, probleme ou besoin concret couvert par cette issue
+      placeholder: "Ex. Permettre la redaction et la validation du PRD lean dans docs/PRD.md."
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Criteres d'acceptation
+      value: |
+        ## Criteres d'acceptation
+        - [ ] Le comportement attendu est observable
+        - [ ] Le livrable ou la correction est verifiable
+        - [ ] Les dependances sont explicites
+    validations:
+      required: true
+
+  - type: textarea
+    id: child_tasks
+    attributes:
+      label: Taches liees
+      description: Decouper ensuite le travail en sous-taches techniques ou documentaires
+      value: |
+        ## Taches de cette issue
+        - [ ] #00 A remplacer par une task enfant
+    validations:
+      required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Liens, dependances, hypotheses ou contraintes
