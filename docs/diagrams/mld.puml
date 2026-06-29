@@ -3,11 +3,15 @@ left to right direction
 skinparam shadowing false
 skinparam linetype ortho
 
+' MLD : transformation logique du MCD (img-mcd.png)
+' - cles techniques id (uuid) en complement des identifiants metier du MCD
+' - association PROGRESS resolue en table progress (user_id, module_id)
+
 entity "users" as users {
   * id : uuid <<PK>>
   --
   email : text <<UNIQUE>>
-  password_hash : text
+  password : text
   role : user_role_enum
   created_at : timestamptz
   updated_at : timestamptz
@@ -16,11 +20,11 @@ entity "users" as users {
 entity "modules" as modules {
   * id : uuid <<PK>>
   --
-  title : text
+  title : text <<UNIQUE>>
   short_description : text
-  learning_objective : text
   display_order : int <<UNIQUE>>
   publication_status : module_publication_status_enum
+  learning_objective : text
   created_at : timestamptz
   updated_at : timestamptz
 }
@@ -29,24 +33,22 @@ entity "resources" as resources {
   * id : uuid <<PK>>
   --
   module_id : uuid <<FK>>
-  title : text
+  content : text
   resource_type : resource_type_enum
-  url : text
   display_order : int
   created_at : timestamptz
 }
 
 entity "progress" as progress {
-  * id : uuid <<PK>>
+  * user_id : uuid <<PK, FK>>
+  * module_id : uuid <<PK, FK>>
   --
-  user_id : uuid <<FK>>
-  module_id : uuid <<FK>>
   status : progress_status_enum
   updated_at : timestamptz
-  (user_id, module_id) <<UNIQUE>>
 }
 
 users ||--o{ progress : user_id
 modules ||--o{ progress : module_id
 modules ||--o{ resources : module_id
+
 @enduml
