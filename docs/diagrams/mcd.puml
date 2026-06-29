@@ -3,45 +3,69 @@ left to right direction
 skinparam shadowing false
 skinparam linetype ortho
 
-entity "UTILISATEUR" as USER {
-  * id
+skinparam entity {
+  BackgroundColor #FFFACD
+  BorderColor Black
+}
+skinparam circle {
+  BackgroundColor #AFEEEE
+  BorderColor Black
+  FontColor Black
+}
+
+entity "USERS" as USERS {
+  * email
   --
-  email
-  password_hash
+  password
   role
   created_at
   updated_at
 }
 
-entity "MODULE" as MODULE {
-  * id
-  --
-  title
-  short_description
-  learning_objective
-  display_order
-  publication_status
-  created_at
-  updated_at
-}
-
-entity "RESSOURCE" as RESOURCE {
-  * id
-  --
-  title
-  resource_type
-  url
-  display_order
-  created_at
-}
-
-entity "PROGRESSION" as PROGRESS {
+entity "PROGRESS" as PROGRESS {
+  * module
   --
   status
   updated_at
 }
 
-USER ||--o{ PROGRESS : suit
-MODULE ||--o{ PROGRESS : concerne
-MODULE ||--o{ RESOURCE : contient
+entity "MODULES" as MODULES {
+  * title
+  --
+  short_description
+  display_order
+  updated_at
+  publication_status
+  learning_objective
+  created_at
+}
+
+entity "RESOURCES" as RESOURCES {
+  * content
+  --
+  resource_type
+  display_order
+  created_at
+  module_id : UUID
+}
+
+circle "Suit" as SUIT
+circle "Conserne" as CONCERNE
+circle "Contient" as CONTIENT
+
+' Disposition proche de img-mcd.png
+USERS -[hidden]right- PROGRESS
+PROGRESS -[hidden]down- MODULES
+RESOURCES -[hidden]right- MODULES
+USERS -[hidden]down- RESOURCES
+
+USERS "0,n" -- "1,1" SUIT
+SUIT "1,1" -- PROGRESS
+
+PROGRESS "1,1" -- "0,n" CONCERNE
+CONCERNE "0,n" -- MODULES
+
+MODULES "0,n" -- "1,1" CONTIENT
+CONTIENT "1,1" -- RESOURCES
+
 @enduml
