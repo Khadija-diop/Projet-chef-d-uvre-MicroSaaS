@@ -1,0 +1,65 @@
+@startuml
+left to right direction
+skinparam shadowing false
+skinparam linetype ortho
+
+' MPD PostgreSQL : implementation physique du MLD (Parcours DevOps Guide)
+
+entity "users" as users {
+  * id : uuid <<PK>> DEFAULT gen_random_uuid()
+  --
+  email : text <<NOT NULL, UNIQUE>>
+  password : text <<NOT NULL>>
+  role : user_role_enum <<NOT NULL>> DEFAULT 'learner'
+  created_at : timestamptz <<NOT NULL>> DEFAULT now()
+  updated_at : timestamptz <<NOT NULL>> DEFAULT now()
+}
+
+entity "modules" as modules {
+  * id : uuid <<PK>> DEFAULT gen_random_uuid()
+  --
+  title : text <<NOT NULL, UNIQUE>>
+  short_description : text <<NOT NULL>>
+  learning_objective : text <<NOT NULL>>
+  display_order : int <<NOT NULL, UNIQUE>>
+  publication_status : module_publication_status_enum <<NOT NULL>> DEFAULT 'draft'
+  created_at : timestamptz <<NOT NULL>> DEFAULT now()
+  updated_at : timestamptz <<NOT NULL>> DEFAULT now()
+}
+
+entity "resources" as resources {
+  * id : uuid <<PK>> DEFAULT gen_random_uuid()
+  --
+  module_id : uuid <<NOT NULL, FK>> REFERENCES modules(id) ON DELETE CASCADE
+  content : text <<NOT NULL>>
+  resource_type : resource_type_enum <<NOT NULL>>
+  display_order : int <<NOT NULL>> DEFAULT 1
+  created_at : timestamptz <<NOT NULL>> DEFAULT now()
+}
+
+entity "progress" as progress {
+  * user_id : uuid <<PK, FK>> REFERENCES users(id) ON DELETE CASCADE
+  * module_id : uuid <<PK, FK>> REFERENCES modules(id) ON DELETE CASCADE
+  --
+  status : progress_status_enum <<NOT NULL>> DEFAULT 'todo'
+  updated_at : timestamptz <<NOT NULL>> DEFAULT now()
+}
+
+note bottom of resources
+  INDEX idx_resources_module_id (module_id)
+end note
+
+note bottom of progress
+  INDEX idx_progress_user_id (user_id)
+  INDEX idx_progress_module_id (module_id)
+end note
+
+note bottom of modules
+  INDEX idx_modules_publication_status (publication_status)
+end note
+
+users ||--o{ progress : user_id
+modules ||--o{ progress : module_id
+modules ||--o{ resources : module_id
+
+@enduml
