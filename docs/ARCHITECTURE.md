@@ -8,7 +8,6 @@ Il porte sur le **produit** documente dans `docs/` :
 
 - la structure applicative
 - les choix de stack
-- le patron d'architecture
 - les couches du backend
 - les choix de securite
 - les choix de sobriete

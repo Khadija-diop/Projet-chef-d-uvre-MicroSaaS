@@ -10,16 +10,19 @@ Il couvre :
 - le **MLD** (modele logique relationnel)
 - le **MPD** (modele physique cible pour `PostgreSQL`)
 
+
 ## 2. Regles de nommage
 
 Pour garder un modele homogene, les regles suivantes sont retenues :
 
 - noms techniques en `snake_case`
 - noms de tables au pluriel
-- cles primaires nommees `id`
+- cles primaires nommees `id` au niveau logique et physique (sauf `progress`)
 - cles etrangeres nommees `<entite>_id`
 - colonnes de dates nommees `created_at` et `updated_at`
 - statuts et roles limites a des enums explicites
+
+Au niveau **MCD**, les identifiants metier (`email`, `title`, `content`) sont portes en cles conceptuelles. Au niveau **MLD/MPD**, des `id` techniques `uuid` completent ces identifiants.
 
 ## 3. MCD
 
@@ -33,65 +36,70 @@ Le MCD couvre toutes les fonctionnalites prevues pour la V1 :
 
 ### Entites principales
 
-#### Utilisateur
+#### USERS
 
 Represente toute personne possedant un compte applicatif.
 
-Attributs principaux :
+Attributs conceptuels :
 
-- id
-- email
-- password_hash
+- email (identifiant)
+- password
 - role
 - created_at
 - updated_at
 
-#### Module
+#### MODULES
 
 Represente une etape du parcours pedagogique.
 
-Attributs principaux :
+Attributs conceptuels :
 
-- id
-- title
+- title (identifiant)
 - short_description
-- learning_objective
 - display_order
 - publication_status
+- learning_objective
 - created_at
 - updated_at
 
-#### Ressource
+#### RESOURCES
 
-Represente un contenu rattache a un module.
+Represente un contenu rattache a un module (article, video, lien, checklist via `resource_type`).
 
-Attributs principaux :
+Attributs conceptuels :
 
-- id
-- module_id
-- title
+- content (identifiant / cible du contenu)
 - resource_type
-- url
 - display_order
 - created_at
+- module_id (rattachement au module parent)
 
-#### Progression
+#### PROGRESS
 
-Represente l'avancement d'un·e apprenant·e sur un module.
+Represente l'avancement d'un·e apprenant·e sur un module (association `Suit` / `Concerne` materialisee).
 
-Attributs principaux :
+Attributs conceptuels :
 
-- user_id
-- module_id
+- module (identifiant du module concerne)
 - status
 - updated_at
 
-### Associations
+### Associations Merise
+
+| Association | Entite A | Cardinalite A | Entite B | Cardinalite B |
+| --- | --- | --- | --- | --- |
+| **Suit** | USERS | (0,n) | PROGRESS | (1,1) |
+| **Concerne** | PROGRESS | (1,1) | MODULES | (0,n) |
+| **Contient** | MODULES | (0,n) | RESOURCES | (1,1) |
+
+Regles metier :
 
 - un **module** contient zero, une ou plusieurs **ressources**
 - un **utilisateur** peut avoir zero, une ou plusieurs **progressions**
-- un **module** peut etre lie a zero, une ou plusieurs **progressions**
+- un **module** peut etre concerne par zero, une ou plusieurs **progressions**
 - une **progression** relie exactement un **utilisateur** et exactement un **module**
+- une ressource appartient a exactement un module
+- `resource_type` distingue `article`, `video`, `link`, `checklist` sans sous-entites dediees en V1
 
 ## 4. MLD
 
@@ -99,42 +107,41 @@ Le MLD retenu repose sur quatre relations principales.
 
 ### `users`
 
-- `id` PK
+- `id` PK (`uuid`)
 - `email` UNIQUE
-- `password_hash`
+- `password`
 - `role`
 - `created_at`
 - `updated_at`
 
 ### `modules`
 
-- `id` PK
-- `title`
+- `id` PK (`uuid`)
+- `title` UNIQUE
 - `short_description`
 - `learning_objective`
-- `display_order`
+- `display_order` UNIQUE
 - `publication_status`
 - `created_at`
 - `updated_at`
 
 ### `resources`
 
-- `id` PK
+- `id` PK (`uuid`)
 - `module_id` FK -> `modules.id`
-- `title`
+- `content`
 - `resource_type`
-- `url`
 - `display_order`
 - `created_at`
 
 ### `progress`
 
-- `id` PK
-- `user_id` FK -> `users.id`
-- `module_id` FK -> `modules.id`
+- `user_id` PK, FK -> `users.id`
+- `module_id` PK, FK -> `modules.id`
 - `status`
 - `updated_at`
-- contrainte unique sur (`user_id`, `module_id`)
+
+La table `progress` materialise l'association N,N entre utilisateur et module avec attributs.
 
 ## 5. MPD
 
@@ -142,42 +149,45 @@ Le MPD cible est `PostgreSQL`.
 
 Choix retenus :
 
-- `uuid` pour les identifiants
+- `uuid` pour les identifiants techniques
 - `timestamptz` pour les dates
-- enums pour les statuts et roles
-- contraintes `unique` pour garantir l'integrite metier
-- index sur les cles etrangeres et les colonnes de tri utiles
+- enums pour les statuts, roles et types de ressources
+- cle primaire composite sur `progress (user_id, module_id)`
+- contraintes `UNIQUE` sur les identifiants metier (`email`, `title`, `display_order`)
+- index sur les cles etrangeres et les colonnes de filtrage utiles
+- `ON DELETE CASCADE` sur les dependances `resources` et `progress`
 
-Le DDL de reference est versionne dans `docs/MPD.sql`.
+Le DDL de reference est versionne dans `sql/MPD.sql`.
 
 ## 6. Diagrammes associes
 
 Les sources et exports de cette etape sont stockes dans `docs/diagrams/`.
 
-- `mcd.puml` / `mcd.png`
-- `mld.puml` / `mld.png`
-- `sequence-main-flow.puml` / `sequence-main-flow.png`
+| Diagramme | Source | Export |
+| --- | --- | --- |
+| MCD | `mcd.puml` | `mcd.png` |
+| MLD | `mld.puml` | `mld.png` |
+| MPD | `mpd.puml` | `mpd.png` |
+| Cas d'utilisation | `use-case.puml` | `use-case.png` |
+| Deploiement | `deployment.puml` | `deployment.png` |
+| Sequence (parcours principal) | `sequence-main-flow.puml` | `sequence.png` |
 
 ## 7. Checklist livrables - Etape C
 
-Cette section relie le brief **Etape C** aux fichiers du depot.
-
 | Livrable | Fichier ou emplacement | Statut |
 | --- | --- | --- |
-| MCD (conceptuel) | `docs/diagrams/mcd.puml` + export `docs/diagrams/mcd.png` | source versionnee, export a generer depuis l'outil |
-| MLD (logique relationnel) | `docs/diagrams/mld.puml` + export `docs/diagrams/mld.png` | idem |
-| MPD (physique / DDL PostgreSQL) | `docs/MPD.sql` | DDL versionne : c'est le livrable physique principal |
-| Diagramme de sequence (parcours principal) | `docs/diagrams/sequence-main-flow.puml` + export `docs/diagrams/sequence-main-flow.png` | idem |
+| MCD (conceptuel) | `docs/diagrams/mcd.puml` + `mcd.png` | source versionnee, export PNG |
+| MLD (logique relationnel) | `docs/diagrams/mld.puml` + `mld.png` | source versionnee, export PNG |
+| MPD (physique / DDL PostgreSQL) | `sql/MPD.sql` + `mpd.puml` + `mpd.png` | DDL et diagramme alignes |
+| Diagramme de sequence (parcours principal) | `sequence-main-flow.puml` + `sequence.png` | parcours complet documente |
+| Cas d'utilisation | `use-case.puml` + `use-case.png` | aligne SPECS / MCD |
+| Deploiement logique | `deployment.puml` + `deployment.png` | export PNG |
 | Benchmark visuel (3 a 5 references) | `docs/benchmark.md` | 4 references documentees |
 | Moodboard | `docs/moodboard.md` | intention + palette + typographies |
 | Charte + design tokens | `docs/DESIGN.md` | tokens + contraintes RGAA 4.1 |
 | Wireframes ecrans principaux | `docs/WIREFRAMES.md` | wireframes textuels |
-| Maquettes haute fidelite Figma | `docs/DESIGN.md` section **9. Liens Figma** | a completer avec l'URL du fichier Figma |
-| Prototype interactif Figma | `docs/DESIGN.md` section **9. Liens Figma** | a completer avec l'URL du prototype |
-
-**Exports PNG** : ouvrir chaque `.puml` dans un outil compatible PlantUML puis exporter en PNG dans `docs/diagrams/`, ou utiliser un rendu en ligne. Les noms d'export attendus sont listes dans `docs/diagrams/README.md`.
-
-**MPD** : le referentiel demande un DDL pour le SGBD. Le fichier `docs/MPD.sql` remplit ce role. Un eventuel schema physique sous forme d'image reste optionnel.
+| Maquettes haute fidelite Figma | `docs/DESIGN.md` section **9. Liens Figma** | disponible : https://www.figma.com/design/OL1nUrNFEaoYM0AvW0JXll/Parcours-DevOps-Guide |
+| Prototype interactif Figma | `docs/DESIGN.md` section **9. Liens Figma** | disponible : https://www.figma.com/design/OL1nUrNFEaoYM0AvW0JXll/Parcours-DevOps-Guide |
 
 ## 8. Justification
 
@@ -186,11 +196,12 @@ Ce modele reste volontairement simple pour une V1, mais il couvre deja :
 - la separation entre contenu pedagogique et progression utilisateur
 - la gestion d'un role d'administration
 - l'association de plusieurs ressources a un module
-- la traçabilite de l'avancement par apprenant·e
+- la distinction des types de ressources via un discriminant
+- la tracabilite de l'avancement par apprenant·e
 
 Il est evolutif pour la Phase 2, par exemple pour ajouter :
 
-- plusieurs types de ressources enrichies
+- des attributs specifiques par type de ressource
 - des categories de modules
 - un tableau de bord plus riche
 - des traces d'audit ou d'administration

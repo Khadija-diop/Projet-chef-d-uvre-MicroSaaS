@@ -36,6 +36,8 @@ Une application simple qui propose un parcours DevOps structure en modules, asso
 
 Permettre a un·e apprenant·e de consulter un parcours DevOps guide, d'acceder aux ressources associees a chaque module et d'enregistrer sa progression etape par etape.
 
+Une administration minimale (creer, modifier, publier ou masquer un module et ses ressources) est necessaire pour alimenter ce parcours. Elle reste une brique support technique indispensable au produit, mais elle ne constitue pas la fonctionnalite principale : la promesse de valeur pour la cible reste la consultation du parcours et le suivi de progression.
+
 ## 7. Parcours principal
 
 1. Un·e visiteur·se consulte la presentation du parcours

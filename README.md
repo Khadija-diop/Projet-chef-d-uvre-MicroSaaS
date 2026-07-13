@@ -1,6 +1,12 @@
-# Lab DevOps Securise
+# Parcours DevOps Guide
 
 Projet de chef-d'oeuvre concu comme un **site-lab pedagogique** pour apprendre le DevOps par la pratique et aider d'autres apprenant·es a suivre un parcours clair.
+
+## MicroSaaS de la Phase 1
+
+Le MicroSaaS documente et livre pour la Phase 1 du Projet Chef-d'oeuvre est **`Parcours DevOps Guide`** : une application qui aide les apprenant·es debutant·es en DevOps a suivre un parcours structure en modules et a enregistrer leur progression. Sa conception complete (PRD, specifications, architecture, modele de donnees, maquettes) est documentee dans `docs/`.
+
+`Lab DevOps Securise` est le nom de code du depot dans son ensemble : c'est le cadre applicatif et technique global qui accueille ce MicroSaaS et qui sera enrichi en Phase 2 avec la conteneurisation, la CI/CD et le deploiement automatise.
 
 ## Vision
 
@@ -32,7 +38,7 @@ Apprendre le DevOps uniquement en theorie reste abstrait. Sans projet reel :
 - les problemes de deploiement ne sont pas rencontres en conditions concretes
 - la securite, les tests et la reprise sur incident restent mal pratiques
 
-Le Lab DevOps Securise repond a ce besoin en fournissant un terrain d'experimentation réel sur lequel appliquer `Git`, `CI/CD`, `Docker`, `Ansible` et les pratiques de securite.
+Le Lab DevOps Securise repond a ce besoin en fournissant un terrain d'experimentation reel sur lequel appliquer `Git`, `CI/CD`, `Docker`, `Ansible` et les pratiques de securite, avec `Parcours DevOps Guide` comme application concrete a construire, securiser et deployer.
 
 ## Cible
 
@@ -161,7 +167,6 @@ Documents deja presents :
 - `docs/PRD.md`
 - `docs/SPECS.md`
 - `mes-guides/guide-route-devops.md`
-- `mes-guides/plan.md`
 
 ## Parcours utilisateur principal
 
@@ -205,4 +210,4 @@ Les indicateurs de succes retenus sont :
 
 ## Resume en une phrase
 
-Le Lab DevOps Securise est un site-lab personnel concu pour apprendre le DevOps par la pratique en construisant, securisant, automatisant et deployant une vraie application web.
+Le Lab DevOps Securise est un site-lab personnel concu pour apprendre le DevOps par la pratique en construisant, securisant, automatisant et deployant une vraie application web : `Parcours DevOps Guide`, le MicroSaaS documente pour la Phase 1.
