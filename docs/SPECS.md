@@ -63,6 +63,8 @@ La V1 ne couvre pas :
 
 ### Epic - Administration de contenu
 
+_Brique support minimale necessaire pour alimenter le parcours ; elle ne constitue pas la fonctionnalite principale du produit, qui reste la consultation du parcours et le suivi de progression (cf. `PRD.md` section 6)._
+
 - En tant qu'administrateur·rice, je veux creer un module, afin d'enrichir le parcours.
 - En tant qu'administrateur·rice, je veux modifier un module ou ses ressources, afin de maintenir le contenu a jour.
 - En tant qu'administrateur·rice, je veux publier ou masquer un module, afin de controler ce qui est visible.
