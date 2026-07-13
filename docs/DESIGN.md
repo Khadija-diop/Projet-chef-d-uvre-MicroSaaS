@@ -101,6 +101,7 @@ Les maquettes haute fidelite devront respecter au minimum :
 
 - liste des modules
 - formulaire creation / edition module
+- liste des ressources d'un module (ajout / edition / suppression)
 
 ## 7. Prototype interactif cible
 
@@ -121,16 +122,34 @@ Le prototype Figma doit simuler ce parcours principal :
 - maquettes haute fidelite sur Figma
 - prototype interactif cliquable sur Figma
 
-## 9. Liens Figma (a completer)
+## 9. Liens Figma
 
-Remplace les URL ci-dessous par celles de ton fichier Figma reel une fois les frames et le prototype publies.
+Fichier Figma officiel du projet : <https://www.figma.com/design/OL1nUrNFEaoYM0AvW0JXll/Parcours-DevOps-Guide?node-id=0-1&t=UhNtkQxaIak8HDA2-1>.
+
+Guide de portage utilise pour construire ce fichier (import plugin + spec manuelle ecran par ecran, valeurs de charte exactes) : `mes-guides/figma-build-spec.md`.
 
 | Livrable | URL |
 | --- | --- |
-| Fichier Figma (maquettes + composants) | `https://www.figma.com/design/REMPLACER_PAR_TON_ID/Parcours-DevOps-Guide` |
-| Prototype interactif (mode Present / Prototype) | `https://www.figma.com/proto/REMPLACER_PAR_TON_ID/Parcours-DevOps-Guide` |
+| Fichier Figma (maquettes + composants) | <https://www.figma.com/design/OL1nUrNFEaoYM0AvW0JXll/Parcours-DevOps-Guide?node-id=0-1&t=UhNtkQxaIak8HDA2-1> |
+| Prototype interactif (mode Present / Prototype) | <https://www.figma.com/design/OL1nUrNFEaoYM0AvW0JXll/Parcours-DevOps-Guide?node-id=0-1&t=UhNtkQxaIak8HDA2-1> |
 
 **Verification RGAA 4.1 avant rendu** : contraste des paires texte/fond sur les frames principales, ordre de tabulation teste sur la navigation et les formulaires, texte alternatif sur les icones decoratives ou informatives, etats de focus visibles sur les boutons et liens.
+
+### Notes d'accessibilite du prototype Claude
+
+Verifications deja faites sur `docs/prototype.html`, a reproduire a l'identique lors du portage Figma :
+
+| Paire | Ratio | Verdict |
+| --- | --- | --- |
+| Texte `#0F172A` sur fond `#F8FAFC` / `#FFFFFF` | ~17:1 | AAA |
+| Texte secondaire `#475569` sur fond `#F8FAFC` | ~7.2:1 | AAA |
+| Texte blanc sur bouton primaire `#2563EB` | ~5.2:1 | AA |
+| Texte `#0F172A` sur badge succes plein `#16A34A` | ~5.4:1 | AA |
+| Texte `#0F172A` sur badge attention plein `#F59E0B` | ~8.3:1 | AAA |
+
+Consequence retenue : le blanc sur `#16A34A` / `#F59E0B` pleins echoue en AA pour du texte (~3.3:1 et ~2.1:1). Tous les badges de statut (`todo`/`in_progress`/`done`, `draft`/`published`/`hidden`) utilisent donc un fond teinte clair (`success-soft` `#DCFCE7`, `warning-soft` `#FEF3C7`) avec du texte `#0F172A`, doublé d'une icone — jamais la couleur seule.
+
+Navigation clavier : lien d'evitement en premier element tabulable, focus visible (contour 2px `color-primary`) sur tous les controles, focus deplace programmatiquement sur le titre `h1` a chaque changement d'ecran, mise a jour de la progression annoncee via une region `aria-live="polite"`.
 
 ## 10. Decision de design
 

@@ -116,7 +116,38 @@ Ces wireframes textuels cadrent les ecrans principaux avant la realisation des m
 +--------------------------------------------------------------+
 ```
 
-## 9. Utilisation dans Figma
+## 9. Ecran 8 - Ressources d'un module (admin)
+
+```text
++--------------------------------------------------------------+
+| Navigation admin > Module : "Titre du module"                |
++--------------------------------------------------------------+
+| [Ajouter une ressource]                                      |
++--------------------------------------------------------------+
+| Titre        | Type      | Ordre | Actions                  |
+| Ressource 1  | article   | 1     | Editer / Supprimer        |
+| Ressource 2  | video     | 2     | Editer / Supprimer        |
+| Ressource 3  | lien      | 3     | Editer / Supprimer        |
++--------------------------------------------------------------+
+```
+
+Formulaire ressource (creation / edition) :
+
+```text
++-----------------------------------------+
+| Titre de la ressource                   |
+| [______________________________]        |
+| Type                                    |
+| [article / video / lien / checklist]    |
+| URL ou contenu                          |
+| [______________________________]        |
+| Ordre                                   |
+| [____]                                  |
+| [Enregistrer] [Annuler]                 |
++-----------------------------------------+
+```
+
+## 10. Utilisation dans Figma
 
 Ces wireframes servent de base pour :
 
