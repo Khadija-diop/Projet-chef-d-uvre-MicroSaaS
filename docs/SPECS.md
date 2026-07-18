@@ -113,7 +113,8 @@ L'administration doit permettre :
 
 ### Progression
 
-- un module ne peut etre marque que dans deux etats : `a faire` ou `termine`
+- un module suit trois etats de progression : `a faire`, `en cours` (module suivant dans l'ordre du parcours, non encore termine) ou `termine`
+- un module termine peut etre remis a l'etat `a faire` via l'action "Marquer a refaire"
 - la progression d'un·e apprenant·e est personnelle et ne modifie pas le contenu du module
 - un module masque ne doit pas apparaitre dans l'espace public ni dans le parcours apprenant
 
@@ -250,5 +251,4 @@ Le diagramme de cas d'utilisation couvre les interactions entre :
 
 - faut-il gerer des ressources de plusieurs types (`article`, `video`, `lien`, `checklist`) des la V1 ?
 - faut-il afficher un pourcentage de progression ou seulement un nombre de modules termines ?
-- faut-il permettre de remettre un module en etat `a faire` ?
 - faut-il prevoir des categories de modules des la premiere version ?

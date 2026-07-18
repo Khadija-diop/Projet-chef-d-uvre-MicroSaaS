@@ -66,6 +66,7 @@ L'interface doit etre :
 ### Tokens d'etat
 
 - `status-todo`
+- `status-in_progress`
 - `status-done`
 - `status-draft`
 - `status-published`

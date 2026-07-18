@@ -6,7 +6,7 @@ Projet de chef-d'oeuvre concu comme un **site-lab pedagogique** pour apprendre l
 
 Le MicroSaaS documente et livre pour la Phase 1 du Projet Chef-d'oeuvre est **`Parcours DevOps Guide`** : une application qui aide les apprenant·es debutant·es en DevOps a suivre un parcours structure en modules et a enregistrer leur progression. Sa conception complete (PRD, specifications, architecture, modele de donnees, maquettes) est documentee dans `docs/`.
 
-`Lab DevOps Securise` est le nom de code du depot dans son ensemble : c'est le cadre applicatif et technique global qui accueille ce MicroSaaS et qui sera enrichi en Phase 2 avec la conteneurisation, la CI/CD et le deploiement automatise.
+`Parcours DevOps Guide` est le nom de code du depot dans son ensemble : c'est le cadre applicatif et technique global qui accueille ce MicroSaaS et qui sera enrichi en Phase 2 avec la conteneurisation, la CI/CD et le deploiement automatise.
 
 ## Vision
 
@@ -38,7 +38,7 @@ Apprendre le DevOps uniquement en theorie reste abstrait. Sans projet reel :
 - les problemes de deploiement ne sont pas rencontres en conditions concretes
 - la securite, les tests et la reprise sur incident restent mal pratiques
 
-Le Lab DevOps Securise repond a ce besoin en fournissant un terrain d'experimentation reel sur lequel appliquer `Git`, `CI/CD`, `Docker`, `Ansible` et les pratiques de securite, avec `Parcours DevOps Guide` comme application concrete a construire, securiser et deployer.
+Le Parcours DevOps Guide repond a ce besoin en fournissant un terrain d'experimentation reel sur lequel appliquer `Git`, `CI/CD`, `Docker`, `Ansible` et les pratiques de securite, avec `Parcours DevOps Guide` comme application concrete a construire, securiser et deployer.
 
 ## Cible
 
@@ -101,14 +101,15 @@ Repartition des outils DevOps :
 - `Docker` pour standardiser l'execution
 - `Ansible` pour preparer et maintenir le serveur
 
-## Stack envisagee
+## Stack retenue
+
+Detaillee et justifiee dans `docs/ARCHITECTURE.md`.
 
 ### Application
 
-- `Next.js` ou `React` pour le frontend
-- `Node.js` + `Express` ou `NestJS` pour le backend
-- `PostgreSQL` ou `MySQL` pour la base relationnelle
-- stockage complementaire souple si besoin justifie
+- `Next.js` + `TypeScript` + `React Router` pour le frontend
+- `Node.js` + `Express` + `TypeScript` pour le backend
+- `PostgreSQL` + `Prisma` pour la base relationnelle
 
 ### DevOps
 
@@ -142,6 +143,8 @@ Structure documentaire cible du depot :
 ```text
 projet-chef-oeuvre-microsaas/
 ├── README.md
+├── sql/
+│   └── MPD.sql                 DDL PostgreSQL (modele physique)
 └── docs/
     ├── PRD.md                  Product Requirements Document (lean, 2-5 pages)
     ├── SPECS.md                user stories + scenarios Gherkin
@@ -152,9 +155,8 @@ projet-chef-oeuvre-microsaas/
     ├── moodboard.md
     ├── PITCH.pdf               support du pitch oral
     ├── DATA_MODEL.md           MERISE (MCD / MLD) + lien diagrammes + MPD
-    ├── MPD.sql                 DDL PostgreSQL (modele physique)
     └── diagrams/
-        ├── use-cases.png       diagramme de cas d'utilisation
+        ├── use-case.png        diagramme de cas d'utilisation
         ├── deployment.png      diagramme de deploiement UML
         ├── sequence.png        diagramme de sequence de la fonctionnalite principale
         ├── mcd.png             modele conceptuel de donnees (MERISE)
@@ -210,4 +212,4 @@ Les indicateurs de succes retenus sont :
 
 ## Resume en une phrase
 
-Le Lab DevOps Securise est un site-lab personnel concu pour apprendre le DevOps par la pratique en construisant, securisant, automatisant et deployant une vraie application web : `Parcours DevOps Guide`, le MicroSaaS documente pour la Phase 1.
+Le Parcours DevOps Guide est un site-lab personnel concu pour apprendre le DevOps par la pratique en construisant, securisant, automatisant et deployant une vraie application web : `Parcours DevOps Guide`, le MicroSaaS documente pour la Phase 1.
