@@ -81,7 +81,7 @@ Represente l'avancement d'un·e apprenant·e sur un module (association `Suit` /
 Attributs conceptuels :
 
 - module (identifiant du module concerne)
-- status
+- status (`a_faire` / `en_cours` / `termine`)
 - updated_at
 
 ### Associations Merise
@@ -138,7 +138,7 @@ Le MLD retenu repose sur quatre relations principales.
 
 - `user_id` PK, FK -> `users.id`
 - `module_id` PK, FK -> `modules.id`
-- `status`
+- `status` (enum : `a_faire`, `en_cours`, `termine`)
 - `updated_at`
 
 La table `progress` materialise l'association N,N entre utilisateur et module avec attributs.
