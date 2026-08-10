@@ -177,8 +177,11 @@ Quatre entités couvrent la V1 : **USERS**, **MODULES**, **RESOURCES**, **PROGRE
 
 1. La liste et l'ordre des modules avancés proposés (section 3.2) sont-ils pertinents ? Faut-il en retirer, en ajouter, ou revoir l'ordre ?
 2. Les modules avancés (Kubernetes, Kafka/Debezium...) doivent-ils rester purement théoriques/guidés, ou le site doit-il lui-même évoluer en Phase 3 pour les démontrer en conditions réelles ?
-3. Faut-il gérer plusieurs types de ressources (article, vidéo, lien, check-list) dès la V1, ou simplifier pour commencer ?
-4. Faut-il afficher un pourcentage de progression global, ou seulement un nombre de modules terminés ?
-5. Faut-il prévoir des catégories de modules dès la première version ?
+
+Les points suivants, initialement ouverts, ont été tranchés pour la V1 avant la démo (voir `docs/SPECS.md` §10 pour le détail et la justification) — ils restent révisables si un retour argumenté du mentor ou des pairs le justifie :
+
+3. ~~Faut-il gérer plusieurs types de ressources...~~ → **Oui**, dès la V1, via un simple champ `resource_type` (article / vidéo / lien / check-list).
+4. ~~Faut-il afficher un pourcentage de progression...~~ → **Les deux** : nombre de modules terminés/restants et pourcentage global, calculé à la volée.
+5. ~~Faut-il prévoir des catégories de modules...~~ → **Non pas en V1** (8 modules, ordre d'affichage suffisant) ; envisageable en Phase 2/3.
 
 
