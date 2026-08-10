@@ -2,19 +2,19 @@
 
 ## 1. Objet du document
 
-Déroulé écran par écran de la démonstration du prototype, prévu pour la séquence 4 du pitch (~2:30, voir `docs/PITCH-SCRIPT.md`). Couvre le support principal, le support de secours, et ce qu'il faut dire à chaque étape.
+Déroulé écran par écran de la démonstration du prototype, prévu pour la séquence 4 du pitch (2:30, voir `docs/PITCH-SCRIPT.md`). Couvre le support principal, le support de secours, et ce qu'il faut dire à chaque étape.
 
 ## 2. Supports
 
 | Support | Usage | Lien |
 | --- | --- | --- |
-| **Principal** — Figma, mode Present/Prototype | démo live, navigable au clic | voir `docs/DESIGN.md` §9 |
+| **Principal** — Figma, mode Present/Prototype | démo live, navigable au clic | voir `docs/DESIGN.md`  |
 | **Secours** — `mes-guides/prototype.html` | si Figma est indisponible (réseau, compte) | fichier local, ouvrir dans un navigateur avant la séance |
 | **Filet de sécurité** — captures d'écran | si aucun des deux ne fonctionne | à préparer : exporter 6 écrans clés depuis Figma en amont, les mettre dans un dossier local accessible hors-ligne |
 
 **Avant la démo :** ouvrir les deux supports (Figma + `prototype.html`) dans des onglets séparés, testés au préalable sur la machine et le réseau qui serviront le jour J. Ne pas découvrir un problème de connexion pendant le pitch.
 
-## 3. Déroulé (parcours principal, cf. `DESIGN.md` §7 et `PRD.md` §7)
+## 3. Déroulé (parcours principal, cf. `DESIGN.md`  et `PRD.md` )
 
 | Étape | Écran | Action à l'écran | Ce qu'il faut dire |
 | --- | --- | --- | --- |
@@ -31,7 +31,7 @@ Optionnel si le temps le permet (2:30 est serré, à couper en premier si retard
 
 ## 4. Points d'accessibilité à mentionner si le mentor pose la question (ne pas les dérouler spontanément, ça consomme du temps)
 
-Déjà vérifiés sur `mes-guides/prototype.html` et à reproduire à l'identique dans les maquettes Figma (`docs/DESIGN.md` §9) :
+Déjà vérifiés sur `mes-guides/prototype.html` et à reproduire à l'identique dans les maquettes Figma (`docs/DESIGN.md` ) :
 
 - contrastes texte/fond vérifiés AA/AAA
 - statuts jamais portés par la seule couleur (icône + libellé)
