@@ -247,8 +247,18 @@ Le diagramme de cas d'utilisation couvre les interactions entre :
 
 ---
 
-## 10. Points ouverts
+## 10. Decisions retenues pour la V1
 
-- faut-il gerer des ressources de plusieurs types (`article`, `video`, `lien`, `checklist`) des la V1 ?
-- faut-il afficher un pourcentage de progression ou seulement un nombre de modules termines ?
-- faut-il prevoir des categories de modules des la premiere version ?
+Points precedemment ouverts, tranches avant la demonstration pour eviter de laisser des questions sans reponse pendant le pitch. Ils restent revisables si le mentor ou les pairs apportent un argument contraire (voir `docs/RETOURS.md`).
+
+### Ressources multi-types des la V1 ?
+
+**Decision : oui.** Un discriminant `resource_type` (`article` / `video` / `lien` / `checklist`) est deja porte par l'entite `RESOURCES` sans sous-entites dediees (cf. `docs/DATA_MODEL.md` §3 et §4). Le cout de modelisation est nul (un seul champ enum) et c'est deja reflete dans les wireframes (ecran 8) et la page de detail module.
+
+### Pourcentage de progression ou seul un nombre de modules termines ?
+
+**Decision : les deux.** Le nombre de modules termines/restants est affiche, complete par un pourcentage global calcule (`termines / total`), sans champ supplementaire en base : c'est une valeur derivee au moment de la lecture, pas une donnee stockee. Deja illustre dans le wireframe de l'ecran 5 (tableau de progression).
+
+### Categories de modules des la V1 ?
+
+**Decision : non, pas en V1.** Le MLD ne porte pas de champ `category` sur `modules` (seulement `display_order`), et la V1 ne compte que 8 modules (cf. `docs/PRESENTATION-MENTOR.md` §3.1) : une liste ordonnee unique reste lisible sans categorisation. Une categorisation est identifiee comme evolution possible en Phase 2/3 si le nombre de modules augmente significativement (cf. `docs/DATA_MODEL.md` §8).
