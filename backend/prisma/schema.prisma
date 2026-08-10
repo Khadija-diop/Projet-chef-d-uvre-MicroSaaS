@@ -1,0 +1,95 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  learner
+  admin
+
+  @@map("user_role_enum")
+}
+
+enum ModulePublicationStatus {
+  draft
+  published
+  hidden
+
+  @@map("module_publication_status_enum")
+}
+
+enum ResourceType {
+  article
+  video
+  link
+  checklist
+
+  @@map("resource_type_enum")
+}
+
+enum ProgressStatus {
+  todo
+  in_progress
+  done
+
+  @@map("progress_status_enum")
+}
+
+model User {
+  id        String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email     String     @unique
+  password  String
+  role      UserRole   @default(learner)
+  createdAt DateTime   @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime   @default(now()) @map("updated_at") @db.Timestamptz
+  progress  Progress[]
+
+  @@map("users")
+}
+
+model Module {
+  id                 String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title              String                  @unique
+  shortDescription   String                  @map("short_description")
+  learningObjective  String                  @map("learning_objective")
+  displayOrder       Int                     @unique @map("display_order")
+  publicationStatus  ModulePublicationStatus @default(draft) @map("publication_status")
+  createdAt          DateTime                @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt          DateTime                @default(now()) @map("updated_at") @db.Timestamptz
+  resources          Resource[]
+  progress           Progress[]
+
+  @@index([publicationStatus], map: "idx_modules_publication_status")
+  @@map("modules")
+}
+
+model Resource {
+  id           String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  moduleId     String       @map("module_id") @db.Uuid
+  module       Module       @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  content      String
+  resourceType ResourceType @map("resource_type")
+  displayOrder Int          @default(1) @map("display_order")
+  createdAt    DateTime     @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([moduleId], map: "idx_resources_module_id")
+  @@map("resources")
+}
+
+model Progress {
+  userId    String         @map("user_id") @db.Uuid
+  moduleId  String         @map("module_id") @db.Uuid
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  module    Module         @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  status    ProgressStatus @default(todo)
+  updatedAt DateTime       @default(now()) @map("updated_at") @db.Timestamptz
+
+  @@id([userId, moduleId])
+  @@index([userId], map: "idx_progress_user_id")
+  @@index([moduleId], map: "idx_progress_module_id")
+  @@map("progress")
+}
