@@ -1,69 +1,81 @@
-import Image from "next/image";
+import Link from "next/link";
+
 import styles from "./page.module.css";
+
+const cards = [
+  {
+    title: "Un parcours en modules",
+    text: "Des etapes DevOps structurees et progressives, pensees pour un public debutant.",
+  },
+  {
+    title: "Suivi de progression",
+    text: "Marque chaque module comme termine et visualise ou tu en es dans le parcours.",
+  },
+  {
+    title: "Contenus pedagogiques",
+    text: "Des pages claires sur Git, la CI/CD, Docker et Ansible, appliquees a un vrai projet.",
+  },
+];
 
 export default function Home() {
   return (
     <div className={styles.page}>
+      <header className={styles.topbar}>
+        <Link href="/" className={styles.brand}>
+          Parcours DevOps Guide
+        </Link>
+        <nav className={styles.nav}>
+          <Link href="/connexion">Se connecter</Link>
+          <Link href="/inscription" className={styles.btnPrimary}>
+            Creer un compte
+          </Link>
+        </nav>
+      </header>
+
       <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>
-            To get started, edit the{" "}
-            <code className={styles.code}>page.tsx</code> file.
+        <section className={styles.hero}>
+          <p className={styles.eyebrow}>Site-lab pedagogique · DevOps</p>
+          <h1 className={styles.title}>
+            Apprendre le DevOps par la pratique
           </h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className={styles.subtitle}>
+            Un parcours guide pour apprenant·es debutant·es : suis des modules
+            structures, enregistre ta progression et decouvre les etapes d&apos;un
+            vrai cycle de vie DevOps.
           </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+
+          <p className={styles.pitch}>
+            Le site est lui-meme construit, securise, automatise et deploye avec
+            les outils qu&apos;il enseigne&nbsp;: <strong>dogfooding</strong> de bout
+            en bout.
+          </p>
+
+          <div className={styles.actions}>
+            <Link href="/inscription" className={styles.btnPrimary}>
+              Commencer le parcours
+            </Link>
+            <Link href="/connexion" className={styles.btnSecondary}>
+              J&apos;ai deja un compte
+            </Link>
+          </div>
+        </section>
+
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Ce que tu vas pratiquer</h2>
+          <div className={styles.cards}>
+            {cards.map((card) => (
+              <article key={card.title} className={styles.card}>
+                <h3>{card.title}</h3>
+                <p>{card.text}</p>
+              </article>
+            ))}
+          </div>
+        </section>
       </main>
+
+      <footer className={styles.footer}>
+        Projet Chef-d&apos;oeuvre · CDA — Parcours DevOps Guide
+      </footer>
     </div>
   );
 }
