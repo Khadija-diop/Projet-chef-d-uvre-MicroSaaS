@@ -23,7 +23,7 @@ export async function authenticate(email: string, password: string) {
     throw new AppError(401, "Identifiants invalides");
   }
 
-  const passwordMatches = await bcrypt.compare(password, user.password);
+  const passwordMatches = await bcrypt.compare(password, user.passwordHash);
   if (!passwordMatches) {
     throw new AppError(401, "Identifiants invalides");
   }

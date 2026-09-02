@@ -99,7 +99,7 @@ Architecture **multicouche**, avec une séparation frontend / backend explicite 
 
 | | |
 | --- | --- |
-| **Frontend** | Next.js · TypeScript · React Router |
+| **Frontend** | Next.js · TypeScript ·  |
 | **Backend** | Node.js · Express · TypeScript |
 | **Base de données** | PostgreSQL · Prisma (ORM) |
 | **Versioning & CI** | GitHub · GitHub Actions |

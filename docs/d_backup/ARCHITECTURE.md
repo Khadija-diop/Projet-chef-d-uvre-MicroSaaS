@@ -56,7 +56,7 @@ L'architecture est organisee autour de quatre niveaux :
 
 - **Next** 
 - **TypeScript**
-- **React Router**
+- ****
 
 ### Backend
 

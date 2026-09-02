@@ -85,7 +85,7 @@ async function main() {
     update: {},
     create: {
       email: "admin@parcours-devops-guide.local",
-      password: adminPassword,
+      passwordHash: adminPassword,
       role: "admin",
     },
   });
@@ -96,7 +96,7 @@ async function main() {
     update: {},
     create: {
       email: "apprenant@parcours-devops-guide.local",
-      password: learnerPassword,
+      passwordHash: learnerPassword,
       role: "learner",
     },
   });

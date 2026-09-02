@@ -5,6 +5,19 @@ import session from "express-session";
 import { errorHandler, notFoundHandler } from "./middlewares/errors.js";
 import { router } from "./routes/index.js";
 
+function resolveSessionSecret(): string {
+  const secret = process.env.SESSION_SECRET;
+  if (secret && secret.length > 0) {
+    return secret;
+  }
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("SESSION_SECRET is required in production");
+  }
+  return "dev-secret";
+}
+
+const sessionSecret = resolveSessionSecret();
+
 export const app = express();
 
 app.use(
@@ -17,7 +30,7 @@ app.use(express.json());
 app.use(
   session({
     name: "connect.sid",
-    secret: process.env.SESSION_SECRET ?? "dev-secret",
+    secret: sessionSecret,
     resave: false,
     saveUninitialized: false,
     cookie: {

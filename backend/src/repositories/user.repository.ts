@@ -11,5 +11,5 @@ export function findUserById(id: string) {
 }
 
 export function createUser(email: string, hashedPassword: string, role: UserRole = "learner") {
-  return prisma.user.create({ data: { email, password: hashedPassword, role } });
+  return prisma.user.create({ data: { email, passwordHash: hashedPassword, role } });
 }

@@ -6,6 +6,7 @@ import { useState } from "react";
 
 import { register } from "@/lib/api";
 
+import { AuthTabs } from "../auth-tabs";
 import styles from "../auth.module.css";
 
 export default function InscriptionPage() {
@@ -25,7 +26,7 @@ export default function InscriptionPage() {
       router.push("/");
       router.refresh();
     } catch {
-      setError("Impossible de creer le compte (email deja utilise ou mot de passe trop court)");
+      setError("Impossible de créer le compte (email déjà utilisé ou mot de passe trop court)");
     } finally {
       setIsSubmitting(false);
     }
@@ -34,7 +35,11 @@ export default function InscriptionPage() {
   return (
     <main className={styles.page}>
       <div className={styles.card}>
-        <h1 className={styles.title}>Creer un compte</h1>
+        <AuthTabs active="inscription" />
+
+        <h1 className={styles.title}>Créer un compte</h1>
+        <p className={styles.subtitle}>Rejoins le parcours et démarre ta progression.</p>
+
         <form className={styles.form} onSubmit={handleSubmit}>
           <label className={styles.label} htmlFor="email">
             Email
@@ -61,9 +66,13 @@ export default function InscriptionPage() {
             autoComplete="new-password"
             minLength={8}
             required
+            aria-describedby="password-hint"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
           />
+          <p id="password-hint" className={styles.hint}>
+            8 caractères minimum.
+          </p>
 
           {error && (
             <p className={styles.error} role="alert" aria-live="polite">
@@ -72,12 +81,12 @@ export default function InscriptionPage() {
           )}
 
           <button className={styles.submit} type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Creation..." : "Creer mon compte"}
+            {isSubmitting ? "Création..." : "Créer mon compte"}
           </button>
         </form>
 
         <p className={styles.switch}>
-          Deja un compte ? <Link href="/connexion">Se connecter</Link>
+          Déjà un compte ? <Link href="/connexion">Se connecter</Link>
         </p>
       </div>
     </main>

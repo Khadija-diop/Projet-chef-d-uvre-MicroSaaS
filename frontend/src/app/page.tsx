@@ -74,7 +74,7 @@ export default function Home() {
       </main>
 
       <footer className={styles.footer}>
-        Projet Chef-d&apos;oeuvre · CDA — Parcours DevOps Guide
+        Projet Chef-d&apos;oeuvre: DevOps Guide
       </footer>
     </div>
   );
