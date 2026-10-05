@@ -31,3 +31,7 @@ Thumbs.db
 
 # Local notes and global project guides
 mes-guides/
+
+# Supports de soutenance personnels (hors depot)
+notes-soutenance-choix-techniques.md
+parcours-devops-guide-pitch.pptx
