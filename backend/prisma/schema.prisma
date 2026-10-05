@@ -7,13 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum UserRole {
-  learner
-  admin
-
-  @@map("user_role_enum")
-}
-
 enum ModulePublicationStatus {
   draft
   published
@@ -39,45 +32,67 @@ enum ProgressStatus {
   @@map("progress_status_enum")
 }
 
+model Role {
+  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code        String  @unique
+  libelle     String
+  description String?
+  users       User[]
+
+  @@map("roles")
+}
+
 model User {
   id           String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   email        String     @unique
   passwordHash String     @map("password_hash")
-  role         UserRole   @default(learner)
+  roleId       String     @map("role_id") @db.Uuid
+  role         Role       @relation(fields: [roleId], references: [id])
   createdAt    DateTime   @default(now()) @map("created_at") @db.Timestamptz
   updatedAt    DateTime   @default(now()) @map("updated_at") @db.Timestamptz
   progress     Progress[]
 
+  @@index([roleId], map: "idx_users_role_id")
   @@map("users")
 }
 
 model Module {
-  id                 String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  title              String                  @unique
-  shortDescription   String                  @map("short_description")
-  learningObjective  String                  @map("learning_objective")
-  displayOrder       Int                     @unique @map("display_order")
-  publicationStatus  ModulePublicationStatus @default(draft) @map("publication_status")
-  createdAt          DateTime                @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt          DateTime                @default(now()) @map("updated_at") @db.Timestamptz
-  resources          Resource[]
-  progress           Progress[]
+  id                String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title             String                  @unique
+  shortDescription  String                  @map("short_description")
+  learningObjective String                  @map("learning_objective")
+  displayOrder      Int                     @unique @map("display_order")
+  publicationStatus ModulePublicationStatus @default(draft) @map("publication_status")
+  createdAt         DateTime                @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime                @default(now()) @map("updated_at") @db.Timestamptz
+  resources         ModuleResource[]
+  progress          Progress[]
 
   @@index([publicationStatus], map: "idx_modules_publication_status")
   @@map("modules")
 }
 
 model Resource {
-  id           String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  moduleId     String       @map("module_id") @db.Uuid
-  module       Module       @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  id           String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   content      String
-  resourceType ResourceType @map("resource_type")
-  displayOrder Int          @default(1) @map("display_order")
-  createdAt    DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  resourceType ResourceType     @map("resource_type")
+  createdAt    DateTime         @default(now()) @map("created_at") @db.Timestamptz
+  modules      ModuleResource[]
 
-  @@index([moduleId], map: "idx_resources_module_id")
   @@map("resources")
+}
+
+model ModuleResource {
+  moduleId     String   @map("module_id") @db.Uuid
+  resourceId   String   @map("resource_id") @db.Uuid
+  module       Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  resource     Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  displayOrder Int      @default(1) @map("display_order")
+
+  @@id([moduleId, resourceId])
+  @@index([moduleId], map: "idx_module_resources_module_id")
+  @@index([resourceId], map: "idx_module_resources_resource_id")
+  @@map("module_resources")
 }
 
 model Progress {

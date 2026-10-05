@@ -6,32 +6,57 @@ node "Navigateur web" as Browser {
   artifact "UI utilisateur"
 }
 
+cloud "Zone publique (Internet)" as PublicZone {
+}
+
 node "Reverse-proxy" as Proxy {
+  artifact "Terminaison TLS (HTTPS)"
   artifact "Routage des requetes"
 }
 
-node "Frontend" as Frontend {
-  artifact "SPA Next.js"
+package "Zone privee (reseau interne, non exposee publiquement)" as PrivateZone {
+
+  node "Frontend" as Frontend {
+    artifact "Next.js"
+  }
+
+  node "Backend (API)" as Backend {
+    artifact "API Node.js + Express"
+    artifact "Services metier"
+    artifact "Authentification par cookie de session\n(HttpOnly, Secure, SameSite=Lax)"
+  }
+
+  database "Database" as Database {
+    artifact "PostgreSQL"
+  }
+
 }
 
-node "Backend (API)" as Backend {
-  artifact "API Node.js + Express"
-  artifact "Services metier"
-}
+note right of Backend
+  Secrets (SESSION_SECRET, DATABASE_URL,
+  identifiants DB) fournis par variables
+  d'environnement, jamais commites (.env
+  ignore par Git, seul .env.example est versionne).
+end note
 
-database "Database" as Database {
-  artifact "PostgreSQL"
-  artifact "Schema relationnel"
-}
+note bottom of Database
+  Accessible uniquement depuis le Backend.
+  Pas de port expose publiquement.
+end note
 
-Browser --> Proxy : HTTPS / HTTP
-Proxy --> Frontend : HTTP\nfichiers statiques
-Proxy --> Backend : HTTP/JSON
-Backend --> Database : SQL
+Browser --> PublicZone : HTTPS
+PublicZone --> Proxy : HTTPS (TLS termine ici)
+Proxy --> Frontend : HTTP interne\nfichiers statiques
+Proxy --> Backend : HTTP interne/JSON\n(cookie de session transmis)
+Backend --> Database : SQL (reseau interne uniquement)
 
 note right of Proxy
-  Nœud logique simplifie pour la Phase 1.
-  Le detail physique du VPS, des conteneurs
-  et du HTTPS sera precise en Phase 2.
+  Noeud logique simplifie pour la Phase 1.
+  Le detail physique du VPS et des conteneurs
+  (Docker Compose complet : proxy + frontend +
+  backend) sera precise en Phase 2. Aujourd'hui,
+  seul le service "postgres" est conteneurise
+  (docker-compose.yml).
 end note
+
 @enduml

@@ -52,7 +52,6 @@ L'interface doit etre plus proche d'un outil utile que d'une plateforme marketin
 
 Pour la version Figma, le moodboard devra reunir :
 
-- 5 a 10 captures de references
 - la palette de couleurs
 - les choix de typographie
 - des exemples de cartes, listes et tableaux de bord

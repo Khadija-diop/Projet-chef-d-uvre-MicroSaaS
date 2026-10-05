@@ -34,7 +34,10 @@ const modules = [
     shortDescription: "Automatiser les verifications a chaque changement de code.",
     learningObjective: "Mettre en place un pipeline CI avec GitHub Actions.",
     publicationStatus: "published" as const,
-    resources: [{ resourceType: "article" as const, content: "https://example.org/ci-intro", displayOrder: 1 }],
+    resources: [
+      { resourceType: "article" as const, content: "https://example.org/ci-intro", displayOrder: 1 },
+      { resourceType: "article" as const, content: "https://example.org/git-versioning", displayOrder: 2 },
+    ],
   },
   {
     displayOrder: 5,
@@ -70,13 +73,47 @@ const modules = [
   },
 ];
 
+/**
+ * Une ressource peut desormais etre partagee par plusieurs modules (table de jointure
+ * module_resources), donc on l'upsert par contenu (pas de create imbrique via Module).
+ */
+async function upsertResourceByContent(resourceType: (typeof modules)[number]["resources"][number]["resourceType"], content: string) {
+  const existing = await prisma.resource.findFirst({ where: { content } });
+  if (existing) {
+    return existing;
+  }
+
+  return prisma.resource.create({ data: { resourceType, content } });
+}
+
 async function main() {
+  await prisma.role.upsert({
+    where: { code: "learner" },
+    update: {},
+    create: { code: "learner", libelle: "Apprenant", description: "Suit le parcours et enregistre sa progression" },
+  });
+  await prisma.role.upsert({
+    where: { code: "admin" },
+    update: {},
+    create: { code: "admin", libelle: "Administrateur", description: "Gere les modules et les ressources" },
+  });
+
   for (const { resources, ...module } of modules) {
-    await prisma.module.upsert({
+    const createdModule = await prisma.module.upsert({
       where: { title: module.title },
       update: module,
-      create: { ...module, resources: { create: resources } },
+      create: module,
     });
+
+    for (const { resourceType, content, displayOrder } of resources) {
+      const resource = await upsertResourceByContent(resourceType, content);
+
+      await prisma.moduleResource.upsert({
+        where: { moduleId_resourceId: { moduleId: createdModule.id, resourceId: resource.id } },
+        update: { displayOrder },
+        create: { moduleId: createdModule.id, resourceId: resource.id, displayOrder },
+      });
+    }
   }
 
   const adminPassword = await bcrypt.hash("admin-devops-guide", 10);
@@ -86,7 +123,7 @@ async function main() {
     create: {
       email: "admin@parcours-devops-guide.local",
       passwordHash: adminPassword,
-      role: "admin",
+      role: { connect: { code: "admin" } },
     },
   });
 
@@ -97,7 +134,7 @@ async function main() {
     create: {
       email: "apprenant@parcours-devops-guide.local",
       passwordHash: learnerPassword,
-      role: "learner",
+      role: { connect: { code: "learner" } },
     },
   });
 

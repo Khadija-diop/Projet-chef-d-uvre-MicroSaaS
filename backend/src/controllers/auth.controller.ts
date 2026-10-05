@@ -56,7 +56,7 @@ export async function me(req: Request, res: Response, next: NextFunction): Promi
       return;
     }
 
-    res.json({ id: user.id, email: user.email, role: user.role });
+    res.json({ id: user.id, email: user.email, role: user.role.code });
   } catch (error) {
     next(error);
   }

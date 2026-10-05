@@ -14,7 +14,7 @@ export async function registerLearner(email: string, password: string) {
   const hashedPassword = await bcrypt.hash(password, PASSWORD_SALT_ROUNDS);
   const user = await createUser(email, hashedPassword, "learner");
 
-  return { id: user.id, email: user.email, role: user.role };
+  return { id: user.id, email: user.email, role: user.role.code };
 }
 
 export async function authenticate(email: string, password: string) {
@@ -28,5 +28,5 @@ export async function authenticate(email: string, password: string) {
     throw new AppError(401, "Identifiants invalides");
   }
 
-  return { id: user.id, email: user.email, role: user.role };
+  return { id: user.id, email: user.email, role: user.role.code };
 }

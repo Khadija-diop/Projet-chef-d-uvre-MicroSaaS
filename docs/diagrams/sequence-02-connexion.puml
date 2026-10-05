@@ -1,0 +1,29 @@
+@startuml sequence-02-connexion
+!include sequence-common.iuml
+title 2. Connexion (POST /api/auth/login)
+
+User -> FE : se connecter
+FE -> API : POST /api/auth/login
+
+API -> API : valider le payload (Zod : email, password >= 8 caracteres)
+alt payload invalide
+  API --> FE : 400 Bad Request
+  FE --> User : erreur de validation affichee
+else payload valide
+  API -> Svc : authenticate(email, password)
+  Svc -> DB : lire l'utilisateur par email (avec role)
+  DB --> Svc : utilisateur ou aucun resultat
+  Svc -> Svc : comparer le mot de passe (bcrypt.compare vs password_hash)
+  alt utilisateur introuvable ou mot de passe invalide
+    Svc --> API : AppError 401
+    API --> FE : 401 Unauthorized
+    FE --> User : "identifiants invalides"
+  else identifiants valides
+    Svc --> API : { id, email, role }
+    API -> API : ouvrir la session (cookie HttpOnly, Secure, SameSite=Lax)
+    API --> FE : 200 OK + Set-Cookie: connect.sid
+    FE --> User : acces a l'espace connecte
+  end
+end
+
+@enduml

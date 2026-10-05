@@ -1,4 +1,4 @@
-import type { User } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -10,12 +10,15 @@ vi.mock("../repositories/user.repository.js");
 
 const mockedRepo = vi.mocked(userRepository);
 
-function fakeUser(overrides: Partial<User> = {}): User {
+type UserWithRole = Prisma.UserGetPayload<{ include: { role: true } }>;
+
+function fakeUser(overrides: Partial<UserWithRole> = {}): UserWithRole {
   return {
     id: "user-1",
     email: "learner@example.com",
     passwordHash: "hashed",
-    role: "learner",
+    roleId: "role-learner",
+    role: { id: "role-learner", code: "learner", libelle: "Apprenant", description: null },
     createdAt: new Date(),
     updatedAt: new Date(),
     ...overrides,

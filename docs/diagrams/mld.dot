@@ -1,0 +1,79 @@
+digraph MLD {
+  rankdir=LR;
+  bgcolor="#F0F0F0";
+  node [fontname="Helvetica"];
+  edge [fontname="Helvetica", fontsize=10, style=dashed, arrowhead=crow, arrowtail=tee, dir=both];
+
+  node [shape=none, margin=0];
+
+  ROLES [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#E0E0E0">
+      <TR><TD BGCOLOR="#C9C9C9"><B>ROLES</B></TD></TR>
+      <TR><TD ALIGN="LEFT"><U>id_role</U></TD></TR>
+      <TR><TD ALIGN="LEFT">code</TD></TR>
+      <TR><TD ALIGN="LEFT">libelle</TD></TR>
+      <TR><TD ALIGN="LEFT">description</TD></TR>
+    </TABLE>>];
+
+  USERS [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#E0E0E0">
+      <TR><TD BGCOLOR="#C9C9C9"><B>UTILISATEURS</B></TD></TR>
+      <TR><TD ALIGN="LEFT"><U>id_user</U></TD></TR>
+      <TR><TD ALIGN="LEFT">email</TD></TR>
+      <TR><TD ALIGN="LEFT">password_hash</TD></TR>
+      <TR><TD ALIGN="LEFT">created_at</TD></TR>
+      <TR><TD ALIGN="LEFT">updated_at</TD></TR>
+      <TR><TD ALIGN="LEFT"><FONT COLOR="#1450B8"><I>id_role</I></FONT></TD></TR>
+    </TABLE>>];
+
+  PROGRESS [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#E0E0E0">
+      <TR><TD BGCOLOR="#C9C9C9"><B>PROGRESSION</B></TD></TR>
+      <TR><TD ALIGN="LEFT"><U><FONT COLOR="#1450B8">id_user</FONT></U></TD></TR>
+      <TR><TD ALIGN="LEFT"><U><FONT COLOR="#1450B8">id_module</FONT></U></TD></TR>
+      <TR><TD ALIGN="LEFT">status</TD></TR>
+      <TR><TD ALIGN="LEFT">updated_at</TD></TR>
+    </TABLE>>];
+
+  MODULES [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#E0E0E0">
+      <TR><TD BGCOLOR="#C9C9C9"><B>MODULES</B></TD></TR>
+      <TR><TD ALIGN="LEFT"><U>id_module</U></TD></TR>
+      <TR><TD ALIGN="LEFT">title</TD></TR>
+      <TR><TD ALIGN="LEFT">short_description</TD></TR>
+      <TR><TD ALIGN="LEFT">learning_objective</TD></TR>
+      <TR><TD ALIGN="LEFT">display_order</TD></TR>
+      <TR><TD ALIGN="LEFT">publication_status</TD></TR>
+      <TR><TD ALIGN="LEFT">created_at</TD></TR>
+      <TR><TD ALIGN="LEFT">updated_at</TD></TR>
+    </TABLE>>];
+
+  RESOURCES [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#E0E0E0">
+      <TR><TD BGCOLOR="#C9C9C9"><B>RESSOURCES</B></TD></TR>
+      <TR><TD ALIGN="LEFT"><U>id_ressource</U></TD></TR>
+      <TR><TD ALIGN="LEFT">content</TD></TR>
+      <TR><TD ALIGN="LEFT">resource_type</TD></TR>
+      <TR><TD ALIGN="LEFT">created_at</TD></TR>
+    </TABLE>>];
+
+  MODULE_RESOURCES [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#E0E0E0">
+      <TR><TD BGCOLOR="#C9C9C9"><B>MODULE_RESSOURCES</B></TD></TR>
+      <TR><TD ALIGN="LEFT"><U><FONT COLOR="#1450B8">id_module</FONT></U></TD></TR>
+      <TR><TD ALIGN="LEFT"><U><FONT COLOR="#1450B8">id_ressource</FONT></U></TD></TR>
+      <TR><TD ALIGN="LEFT">display_order</TD></TR>
+    </TABLE>>];
+
+  USERS -> ROLES [dir=both, arrowtail=tee, arrowhead=crow];
+  USERS -> PROGRESS [dir=both, arrowtail=tee, arrowhead=crow];
+  MODULES -> PROGRESS [dir=both, arrowtail=tee, arrowhead=crow];
+  MODULES -> MODULE_RESOURCES [dir=both, arrowtail=tee, arrowhead=crow];
+  RESOURCES -> MODULE_RESOURCES [dir=both, arrowtail=tee, arrowhead=crow];
+
+  { rank=same; ROLES; USERS; }
+  { rank=same; PROGRESS; }
+  { rank=same; MODULES; }
+  { rank=same; MODULE_RESOURCES; }
+  { rank=same; RESOURCES; }
+}

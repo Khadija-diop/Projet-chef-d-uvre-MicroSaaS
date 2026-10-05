@@ -13,49 +13,63 @@ skinparam entity {
 ' MPD PostgreSQL : implementation physique du MLD (Parcours DevOps Guide)
 ' Extension requise : CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
-entity "utilisateurs" as utilisateurs {
-  * id_user : uuid <<PK>> DEFAULT gen_random_uuid()
+entity "roles" as roles {
+  * id : uuid <<PK>> DEFAULT gen_random_uuid()
+  --
+  code : varchar(50) <<NOT NULL, UNIQUE>>
+  libelle : varchar(100) <<NOT NULL>>
+  description : text <<NULL>>
+}
+
+entity "users" as users {
+  * id : uuid <<PK>> DEFAULT gen_random_uuid()
   --
   email : varchar(255) <<NOT NULL, UNIQUE>>
-  password : varchar(255) <<NOT NULL>>
-  role : varchar(50) <<NOT NULL>>
-  created_at : timestamp <<NOT NULL>> DEFAULT CURRENT_TIMESTAMP
-  updated_at : timestamp <<NULL>>
+  password_hash : varchar(255) <<NOT NULL>>
+  role_id : uuid <<NOT NULL, FK>> REFERENCES roles(id)
+  created_at : timestamptz <<NOT NULL>> DEFAULT CURRENT_TIMESTAMP
+  updated_at : timestamptz <<NOT NULL>> DEFAULT CURRENT_TIMESTAMP
 }
 
 entity "modules" as modules {
-  * id_module : uuid <<PK>> DEFAULT gen_random_uuid()
+  * id : uuid <<PK>> DEFAULT gen_random_uuid()
   --
-  title : varchar(255) <<NOT NULL>>
-  short_description : text <<NULL>>
-  display_order : integer <<NULL>>
-  publication_status_module : varchar(50) <<NULL>>
-  learning_objective : text <<NULL>>
-  created_at : timestamp <<NOT NULL>> DEFAULT CURRENT_TIMESTAMP
-  updated_at : timestamp <<NULL>>
+  title : varchar(255) <<NOT NULL, UNIQUE>>
+  short_description : text <<NOT NULL>>
+  learning_objective : text <<NOT NULL>>
+  display_order : integer <<NOT NULL, UNIQUE>>
+  publication_status : varchar(50) <<NOT NULL>> DEFAULT 'draft'
+  created_at : timestamptz <<NOT NULL>> DEFAULT CURRENT_TIMESTAMP
+  updated_at : timestamptz <<NOT NULL>> DEFAULT CURRENT_TIMESTAMP
 }
 
-entity "ressources" as ressources {
-  * id_ressources : uuid <<PK>> DEFAULT gen_random_uuid()
+entity "resources" as resources {
+  * id : uuid <<PK>> DEFAULT gen_random_uuid()
   --
-  id_module : uuid <<NOT NULL, FK>> REFERENCES modules(id_module)
   content : text <<NOT NULL>>
   resource_type : varchar(50) <<NOT NULL>>
-  display_order : integer <<NULL>>
-  created_at : timestamp <<NOT NULL>> DEFAULT CURRENT_TIMESTAMP
+  created_at : timestamptz <<NOT NULL>> DEFAULT CURRENT_TIMESTAMP
 }
 
-entity "progression" as progression {
-  * id_progression : uuid <<PK>> DEFAULT gen_random_uuid()
+entity "module_resources" as module_resources {
+  * module_id : uuid <<PK, FK>> REFERENCES modules(id)
+  * resource_id : uuid <<PK, FK>> REFERENCES resources(id)
   --
-  id_module : uuid <<NOT NULL, FK>> REFERENCES modules(id_module)
-  id_user : uuid <<NOT NULL, FK>> REFERENCES utilisateurs(id_user)
-  status : varchar(50) <<NOT NULL>>
-  updated_at : timestamp <<NULL>>
+  display_order : integer <<NOT NULL>> DEFAULT 1
 }
 
-utilisateurs ||--o{ progression
-modules ||--o{ progression
-modules ||--o{ ressources
+entity "progress" as progress {
+  * user_id : uuid <<PK, FK>> REFERENCES users(id)
+  * module_id : uuid <<PK, FK>> REFERENCES modules(id)
+  --
+  status : varchar(50) <<NOT NULL>> DEFAULT 'todo'
+  updated_at : timestamptz <<NOT NULL>> DEFAULT CURRENT_TIMESTAMP
+}
+
+roles ||--o{ users
+users ||--o{ progress
+modules ||--o{ progress
+modules ||--o{ module_resources
+resources ||--o{ module_resources
 
 @enduml

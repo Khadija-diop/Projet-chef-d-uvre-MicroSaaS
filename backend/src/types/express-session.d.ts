@@ -1,9 +1,9 @@
 import "express-session";
-import type { UserRole } from "@prisma/client";
+import type { RoleCode } from "./roles.js";
 
 declare module "express-session" {
   interface SessionData {
     userId?: string;
-    role?: UserRole;
+    role?: RoleCode;
   }
 }
