@@ -31,6 +31,14 @@ const modules = [
   },
   {
     displayOrder: 4,
+    title: "Podman, une alternative a Docker",
+    shortDescription: "Decouvrir Podman et la conteneurisation sans daemon.",
+    learningObjective: "Construire et executer un conteneur avec Podman.",
+    publicationStatus: "published" as const,
+    resources: [{ resourceType: "article" as const, content: "https://example.org/podman-intro", displayOrder: 1 }],
+  },
+  {
+    displayOrder: 5,
     title: "Integration continue (CI)",
     shortDescription: "Automatiser les verifications a chaque changement de code.",
     learningObjective: "Mettre en place un pipeline CI avec GitHub Actions.",
@@ -41,7 +49,7 @@ const modules = [
     ],
   },
   {
-    displayOrder: 5,
+    displayOrder: 6,
     title: "Deploiement continu (CD)",
     shortDescription: "Automatiser la livraison d'une application.",
     learningObjective: "Comprendre les strategies de deploiement continu.",
@@ -49,7 +57,7 @@ const modules = [
     resources: [{ resourceType: "article" as const, content: "https://example.org/cd-intro", displayOrder: 1 }],
   },
   {
-    displayOrder: 6,
+    displayOrder: 7,
     title: "Infrastructure as Code",
     shortDescription: "Decrire son infrastructure dans du code versionne.",
     learningObjective: "Comprendre les principes de l'Infrastructure as Code.",
@@ -57,7 +65,15 @@ const modules = [
     resources: [],
   },
   {
-    displayOrder: 7,
+    displayOrder: 8,
+    title: "Ansible et l'automatisation de configuration",
+    shortDescription: "Automatiser la configuration de serveurs avec Ansible.",
+    learningObjective: "Ecrire un playbook Ansible pour configurer un serveur cible.",
+    publicationStatus: "published" as const,
+    resources: [{ resourceType: "article" as const, content: "https://example.org/ansible-intro", displayOrder: 1 }],
+  },
+  {
+    displayOrder: 9,
     title: "Monitoring et observabilite",
     shortDescription: "Savoir si une application fonctionne correctement.",
     learningObjective: "Mettre en place des indicateurs de suivi basiques.",
@@ -65,7 +81,15 @@ const modules = [
     resources: [{ resourceType: "link" as const, content: "https://example.org/monitoring", displayOrder: 1 }],
   },
   {
-    displayOrder: 8,
+    displayOrder: 10,
+    title: "Securite web",
+    shortDescription: "Connaitre les vulnerabilites web courantes et comment s'en proteger.",
+    learningObjective: "Identifier les risques OWASP Top 10 et appliquer les bonnes pratiques de base.",
+    publicationStatus: "published" as const,
+    resources: [{ resourceType: "article" as const, content: "https://example.org/securite-web", displayOrder: 1 }],
+  },
+  {
+    displayOrder: 11,
     title: "Securite DevOps",
     shortDescription: "Appliquer les reflexes de securite applicative de base.",
     learningObjective: "Identifier et corriger les vulnerabilites courantes.",
@@ -102,6 +126,14 @@ async function main() {
     update: {},
     create: { code: "admin", libelle: "Administrateur", description: "Gere les modules et les ressources" },
   });
+
+  // Decale d'abord les modules existants vers des display_order temporaires et negatifs
+  // (donc hors de la plage 1..N utilisee ci-dessous) pour eviter toute collision avec la
+  // contrainte unique display_order quand un reordonnancement change l'ordre des modules.
+  const existingModules = await prisma.module.findMany({ select: { id: true } });
+  for (const [index, existing] of existingModules.entries()) {
+    await prisma.module.update({ where: { id: existing.id }, data: { displayOrder: -(index + 1) } });
+  }
 
   for (const { resources, ...module } of modules) {
     const createdModule = await prisma.module.upsert({

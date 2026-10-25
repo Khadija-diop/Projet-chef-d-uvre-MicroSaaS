@@ -29,7 +29,8 @@ export default function Home() {
           </svg>
           Parcours DevOps Guide
         </Link>
-        <nav className={styles.nav} aria-label="Compte">
+        <nav className={styles.nav} aria-label="Navigation principale">
+          <Link href="/parcours">Voir le parcours</Link>
           <UserMenu />
         </nav>
       </header>
