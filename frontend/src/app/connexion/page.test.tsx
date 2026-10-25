@@ -45,7 +45,7 @@ describe("Page de connexion", () => {
   });
 
   it("affiche une erreur et ne redirige pas quand la connexion échoue", async () => {
-    loginMock.mockRejectedValue(new Error("401"));
+    loginMock.mockRejectedValue(new Error("Identifiants invalides"));
     const user = userEvent.setup();
 
     render(<ConnexionPage />);

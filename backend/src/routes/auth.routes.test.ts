@@ -1,5 +1,5 @@
 import type { Prisma } from "@prisma/client";
-import bcrypt from "bcryptjs";
+import argon2 from "argon2";
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -65,7 +65,7 @@ describe("POST /api/auth/register", () => {
 
 describe("POST /api/auth/login", () => {
   it("renvoie 200 et l'utilisateur avec de bons identifiants", async () => {
-    const passwordHash = await bcrypt.hash("password123", 10);
+    const passwordHash = await argon2.hash("password123");
     mockedRepo.findUserByEmail.mockResolvedValue(fakeUser({ passwordHash }));
 
     const response = await request(app)
@@ -77,7 +77,7 @@ describe("POST /api/auth/login", () => {
   });
 
   it("renvoie 401 avec un mauvais mot de passe", async () => {
-    const passwordHash = await bcrypt.hash("password123", 10);
+    const passwordHash = await argon2.hash("password123");
     mockedRepo.findUserByEmail.mockResolvedValue(fakeUser({ passwordHash }));
 
     const response = await request(app)
@@ -97,7 +97,7 @@ describe("GET /api/auth/me", () => {
   });
 
   it("renvoie l'utilisateur courant après connexion", async () => {
-    const passwordHash = await bcrypt.hash("password123", 10);
+    const passwordHash = await argon2.hash("password123");
     mockedRepo.findUserByEmail.mockResolvedValue(fakeUser({ passwordHash }));
     mockedRepo.findUserById.mockResolvedValue(fakeUser({ passwordHash }));
 

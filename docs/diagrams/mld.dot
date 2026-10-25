@@ -2,14 +2,15 @@ digraph MLD {
   rankdir=LR;
   bgcolor="#F0F0F0";
   node [fontname="Helvetica"];
-  edge [fontname="Helvetica", fontsize=10, style=dashed, arrowhead=crow, arrowtail=tee, dir=both];
+  // Notation Merise : la fleche part de la cle etrangere et pointe vers la cle primaire referencee
+  edge [fontname="Helvetica", fontsize=10, arrowhead=normal, arrowsize=0.8];
 
   node [shape=none, margin=0];
 
   ROLES [label=<
     <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#E0E0E0">
       <TR><TD BGCOLOR="#C9C9C9"><B>ROLES</B></TD></TR>
-      <TR><TD ALIGN="LEFT"><U>id_role</U></TD></TR>
+      <TR><TD ALIGN="LEFT" PORT="pk"><B><U>id_role</U></B></TD></TR>
       <TR><TD ALIGN="LEFT">code</TD></TR>
       <TR><TD ALIGN="LEFT">libelle</TD></TR>
       <TR><TD ALIGN="LEFT">description</TD></TR>
@@ -18,19 +19,19 @@ digraph MLD {
   USERS [label=<
     <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#E0E0E0">
       <TR><TD BGCOLOR="#C9C9C9"><B>UTILISATEURS</B></TD></TR>
-      <TR><TD ALIGN="LEFT"><U>id_user</U></TD></TR>
+      <TR><TD ALIGN="LEFT" PORT="pk"><B><U>id_user</U></B></TD></TR>
       <TR><TD ALIGN="LEFT">email</TD></TR>
       <TR><TD ALIGN="LEFT">password_hash</TD></TR>
       <TR><TD ALIGN="LEFT">created_at</TD></TR>
       <TR><TD ALIGN="LEFT">updated_at</TD></TR>
-      <TR><TD ALIGN="LEFT"><FONT COLOR="#1450B8"><I>id_role</I></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT" PORT="fk_role"><FONT COLOR="#1450B8"><I>id_role</I></FONT></TD></TR>
     </TABLE>>];
 
   PROGRESS [label=<
     <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#E0E0E0">
       <TR><TD BGCOLOR="#C9C9C9"><B>PROGRESSION</B></TD></TR>
-      <TR><TD ALIGN="LEFT"><U><FONT COLOR="#1450B8">id_user</FONT></U></TD></TR>
-      <TR><TD ALIGN="LEFT"><U><FONT COLOR="#1450B8">id_module</FONT></U></TD></TR>
+      <TR><TD ALIGN="LEFT" PORT="fk_user"><B><U><FONT COLOR="#1450B8">id_user</FONT></U></B></TD></TR>
+      <TR><TD ALIGN="LEFT" PORT="fk_module"><B><U><FONT COLOR="#1450B8">id_module</FONT></U></B></TD></TR>
       <TR><TD ALIGN="LEFT">status</TD></TR>
       <TR><TD ALIGN="LEFT">updated_at</TD></TR>
     </TABLE>>];
@@ -38,7 +39,7 @@ digraph MLD {
   MODULES [label=<
     <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#E0E0E0">
       <TR><TD BGCOLOR="#C9C9C9"><B>MODULES</B></TD></TR>
-      <TR><TD ALIGN="LEFT"><U>id_module</U></TD></TR>
+      <TR><TD ALIGN="LEFT" PORT="pk"><B><U>id_module</U></B></TD></TR>
       <TR><TD ALIGN="LEFT">title</TD></TR>
       <TR><TD ALIGN="LEFT">short_description</TD></TR>
       <TR><TD ALIGN="LEFT">learning_objective</TD></TR>
@@ -51,7 +52,7 @@ digraph MLD {
   RESOURCES [label=<
     <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#E0E0E0">
       <TR><TD BGCOLOR="#C9C9C9"><B>RESSOURCES</B></TD></TR>
-      <TR><TD ALIGN="LEFT"><U>id_ressource</U></TD></TR>
+      <TR><TD ALIGN="LEFT" PORT="pk"><B><U>id_ressource</U></B></TD></TR>
       <TR><TD ALIGN="LEFT">content</TD></TR>
       <TR><TD ALIGN="LEFT">resource_type</TD></TR>
       <TR><TD ALIGN="LEFT">created_at</TD></TR>
@@ -60,20 +61,14 @@ digraph MLD {
   MODULE_RESOURCES [label=<
     <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#E0E0E0">
       <TR><TD BGCOLOR="#C9C9C9"><B>MODULE_RESSOURCES</B></TD></TR>
-      <TR><TD ALIGN="LEFT"><U><FONT COLOR="#1450B8">id_module</FONT></U></TD></TR>
-      <TR><TD ALIGN="LEFT"><U><FONT COLOR="#1450B8">id_ressource</FONT></U></TD></TR>
+      <TR><TD ALIGN="LEFT" PORT="fk_module"><B><U><FONT COLOR="#1450B8">id_module</FONT></U></B></TD></TR>
+      <TR><TD ALIGN="LEFT" PORT="fk_ressource"><B><U><FONT COLOR="#1450B8">id_ressource</FONT></U></B></TD></TR>
       <TR><TD ALIGN="LEFT">display_order</TD></TR>
     </TABLE>>];
 
-  USERS -> ROLES [dir=both, arrowtail=tee, arrowhead=crow];
-  USERS -> PROGRESS [dir=both, arrowtail=tee, arrowhead=crow];
-  MODULES -> PROGRESS [dir=both, arrowtail=tee, arrowhead=crow];
-  MODULES -> MODULE_RESOURCES [dir=both, arrowtail=tee, arrowhead=crow];
-  RESOURCES -> MODULE_RESOURCES [dir=both, arrowtail=tee, arrowhead=crow];
-
-  { rank=same; ROLES; USERS; }
-  { rank=same; PROGRESS; }
-  { rank=same; MODULES; }
-  { rank=same; MODULE_RESOURCES; }
-  { rank=same; RESOURCES; }
+  USERS:fk_role:e -> ROLES:pk:w;
+  PROGRESS:fk_user:e -> USERS:pk:w;
+  PROGRESS:fk_module:e -> MODULES:pk:w;
+  MODULE_RESOURCES:fk_module:e -> MODULES:pk:w;
+  MODULE_RESOURCES:fk_ressource:e -> RESOURCES:pk:w;
 }

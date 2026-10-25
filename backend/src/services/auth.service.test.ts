@@ -1,5 +1,5 @@
 import type { Prisma } from "@prisma/client";
-import bcrypt from "bcryptjs";
+import argon2 from "argon2";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AppError } from "../middlewares/errors.js";
@@ -48,7 +48,7 @@ describe("registerLearner", () => {
     expect(mockedRepo.createUser).toHaveBeenCalledTimes(1);
     const [, hashedPassword, role] = mockedRepo.createUser.mock.calls[0];
     expect(hashedPassword).not.toBe("password123");
-    expect(await bcrypt.compare("password123", hashedPassword)).toBe(true);
+    expect(await argon2.verify(hashedPassword, "password123")).toBe(true);
     expect(role).toBe("learner");
     expect(result).toEqual({ id: "user-1", email: "new@example.com", role: "learner" });
     expect(result).not.toHaveProperty("passwordHash");
@@ -66,7 +66,7 @@ describe("authenticate", () => {
   });
 
   it("rejette un mot de passe invalide avec un 401", async () => {
-    const passwordHash = await bcrypt.hash("the-real-password", 10);
+    const passwordHash = await argon2.hash("the-real-password");
     mockedRepo.findUserByEmail.mockResolvedValue(fakeUser({ passwordHash }));
 
     await expect(authenticate("learner@example.com", "wrong-password")).rejects.toMatchObject({
@@ -75,7 +75,7 @@ describe("authenticate", () => {
   });
 
   it("retourne l'utilisateur (sans le hash) quand les identifiants sont bons", async () => {
-    const passwordHash = await bcrypt.hash("the-real-password", 10);
+    const passwordHash = await argon2.hash("the-real-password");
     mockedRepo.findUserByEmail.mockResolvedValue(
       fakeUser({ passwordHash, roleId: "role-admin", role: { id: "role-admin", code: "admin", libelle: "Administrateur", description: null } }),
     );

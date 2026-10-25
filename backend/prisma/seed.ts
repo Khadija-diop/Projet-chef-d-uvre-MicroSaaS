@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcryptjs";
+import argon2 from "argon2";
+
 
 const prisma = new PrismaClient();
 
@@ -87,6 +88,10 @@ async function upsertResourceByContent(resourceType: (typeof modules)[number]["r
 }
 
 async function main() {
+  
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("Le seed de developpement ne doit pas etre lance en production");
+  }
   await prisma.role.upsert({
     where: { code: "learner" },
     update: {},
@@ -116,7 +121,7 @@ async function main() {
     }
   }
 
-  const adminPassword = await bcrypt.hash("admin-devops-guide", 10);
+  const adminPassword = await argon2.hash("admin-devops-guide");
   await prisma.user.upsert({
     where: { email: "admin@parcours-devops-guide.local" },
     update: {},
@@ -127,7 +132,7 @@ async function main() {
     },
   });
 
-  const learnerPassword = await bcrypt.hash("apprenant-devops-guide", 10);
+  const learnerPassword = await argon2.hash("apprenant-devops-guide");
   const learner = await prisma.user.upsert({
     where: { email: "apprenant@parcours-devops-guide.local" },
     update: {},
@@ -161,8 +166,8 @@ async function main() {
 
 main()
   .then(async () => {
-    await prisma.$disconnect();
-  })
+  await prisma.$disconnect();
+})
   .catch(async (error) => {
     console.error(error);
     await prisma.$disconnect();

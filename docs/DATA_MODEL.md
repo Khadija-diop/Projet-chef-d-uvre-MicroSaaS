@@ -46,7 +46,7 @@ Attributs conceptuels :
 - password
 - created_at
 - updated_at
-- role : porte desormais par l'association **A pour role** vers l'entite ROLES (plus un attribut simple)
+- role : porte desormais par l'association **Avoir pour role** vers l'entite ROLES (plus un attribut simple)
 
 #### ROLES
 
@@ -82,45 +82,30 @@ Attributs conceptuels :
 - resource_type
 - created_at
 
-#### MODULE_RESOURCES
-
-Association entite qui relie un module a une ressource qu'il propose (relation N,N materialisee, sur le meme principe que PROGRESS pour USERS/MODULES). Porte l'ordre d'affichage de la ressource **dans ce module precis** : la meme ressource peut avoir un `display_order` different selon le module ou elle apparait.
-
-Attributs conceptuels :
-
-- display_order
-
-#### PROGRESS
-
-Represente l'avancement d'un·e apprenant·e sur un module (association `Suit` / `Concerne` materialisee).
-
-Attributs conceptuels :
-
-- module (identifiant du module concerne)
-- status (`a_faire` / `en_cours` / `termine`)
-- updated_at
-
 ### Associations Merise
 
-| Association | Entite A | Cardinalite A | Entite B | Cardinalite B |
-| --- | --- | --- | --- | --- |
-| **A pour role** | USERS | (1,1) | ROLES | (0,n) |
-| **Suit** | USERS | (0,n) | PROGRESS | (1,1) |
-| **Concerne** | PROGRESS | (1,1) | MODULES | (0,n) |
-| **Propose** | MODULES | (0,n) | MODULE_RESOURCES | (1,1) |
-| **Cible** | MODULE_RESOURCES | (1,1) | RESOURCES | (0,n) |
+| Association | Entite A | Cardinalite A | Entite B | Cardinalite B | Attributs portes |
+| --- | --- | --- | --- | --- | --- |
+| **Avoir pour role** | USERS | (1,1) | ROLES | (0,n) | - |
+| **Suivre** | USERS | (0,n) | MODULES | (0,n) | status (`todo` / `in_progress` / `done`), updated_at |
+| **Proposer** | MODULES | (0,n) | RESOURCES | (0,n) | display_order |
+
+Le MCD ne contient que des entites dotees d'un identifiant propre. Les tables de jointure `progress` et `module_resources` n'y figurent donc pas comme entites : ce sont des **associations porteuses de donnees** (N,N), qui ne deviennent des relations qu'au passage au MLD.
 
 Regles metier :
 
 - un **utilisateur** a exactement un **role** ; un **role** peut etre attribue a zero, un ou plusieurs **utilisateurs**
-- un **module** propose zero, une ou plusieurs **ressources**, et une **ressource** peut etre proposee dans zero, un ou plusieurs **modules** (ex. une doc officielle Git referencee a la fois dans le module Git et dans un module CI/CD ulterieur). C'est une veritable relation **many-to-many (N,N)**, materialisee par l'entite association `MODULE_RESOURCES` (associations `Propose` + `Cible`) sur le meme principe que `PROGRESS` pour USERS/MODULES : la table de jointure demandee. Sa cle est le couple `(module_id, resource_id)`, et elle porte l'attribut `display_order` puisque l'ordre d'affichage d'une ressource peut varier d'un module a l'autre
-- un **utilisateur** peut avoir zero, une ou plusieurs **progressions** ; un **module** peut etre concerne par zero, une ou plusieurs **progressions**
-- une **progression** relie exactement un **utilisateur** et exactement un **module** : `PROGRESS` est l'entite association qui **materialise la relation many-to-many (N,N) entre USERS et MODULES**. C'est la table de jointure demandee : elle porte elle-meme les attributs `status` et `updated_at`, ce qui justifie de la representer comme une entite a part entiere (associations `Suit` + `Concerne`) plutot que comme une simple table de liaison sans donnees
+- un **utilisateur** suit zero, un ou plusieurs **modules**, et un **module** peut etre suivi par zero, un ou plusieurs **utilisateurs**. C'est une relation **many-to-many (N,N)** : l'association **Suivre** porte l'etat d'avancement (`status`) et la date de mise a jour (`updated_at`), qui n'ont de sens que pour un couple (utilisateur, module)
+- un **module** propose zero, une ou plusieurs **ressources**, et une **ressource** peut etre proposee dans zero, un ou plusieurs **modules** (ex. une doc officielle Git referencee a la fois dans le module Git et dans un module CI/CD ulterieur). C'est une relation **many-to-many (N,N)** : l'association **Proposer** porte `display_order`, puisque l'ordre d'affichage d'une ressource peut varier d'un module a l'autre
 - `resource_type` distingue `article`, `video`, `link`, `checklist` sans sous-entites dediees en V1
 
 ## 4. MLD
 
-Le MLD retenu repose sur six relations principales.
+Le MLD retenu repose sur six relations principales, obtenues par les regles de passage Merise :
+
+- chaque entite du MCD devient une relation (`roles`, `users`, `modules`, `resources`) avec une cle primaire technique `id`
+- l'association (1,1)-(0,n) **Avoir pour role** devient une cle etrangere `role_id` dans `users`, cote (1,1)
+- les associations (N,N) **Suivre** et **Proposer** deviennent les relations `progress` et `module_resources` : leur cle primaire est composee des cles des deux entites reliees, et elles recoivent les attributs portes par l'association
 
 ### `roles`
 
@@ -166,7 +151,7 @@ Le MLD retenu repose sur six relations principales.
 
 - `user_id` PK, FK -> `users.id`
 - `module_id` PK, FK -> `modules.id`
-- `status` (enum : `a_faire`, `en_cours`, `termine`)
+- `status` (enum `progress_status_enum` : `todo` = a faire, `in_progress` = en cours, `done` = termine)
 - `updated_at`
 
 La table `progress` **est la table de jointure** qui materialise l'association N,N entre `users` et `modules` : sa cle primaire composite `(user_id, module_id)` empeche qu'un meme utilisateur ait deux lignes de progression pour un meme module, et ses colonnes `status`/`updated_at` sont les attributs portes par cette relation.

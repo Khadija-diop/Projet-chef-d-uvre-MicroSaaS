@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import styles from "./page.module.css";
+import { UserMenu } from "./user-menu";
 
 const cards = [
   {
@@ -22,13 +23,14 @@ export default function Home() {
     <div className={styles.page}>
       <header className={styles.topbar}>
         <Link href="/" className={styles.brand}>
+          <svg className={styles.brandIcon} viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M15 9l-2 6-4-2 2-6z" />
+          </svg>
           Parcours DevOps Guide
         </Link>
-        <nav className={styles.nav}>
-          <Link href="/connexion">Se connecter</Link>
-          <Link href="/inscription" className={styles.btnPrimary}>
-            Creer un compte
-          </Link>
+        <nav className={styles.nav} aria-label="Compte">
+          <UserMenu />
         </nav>
       </header>
 
@@ -52,6 +54,10 @@ export default function Home() {
 
           <div className={styles.actions}>
             <Link href="/inscription" className={styles.btnPrimary}>
+              <svg className={styles.btnIcon} viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M15 9l-2 6-4-2 2-6z" />
+              </svg>
               Commencer le parcours
             </Link>
             <Link href="/connexion" className={styles.btnSecondary}>

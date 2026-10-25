@@ -23,13 +23,6 @@ digraph MCD {
       <TR><TD ALIGN="LEFT">updated_at</TD></TR>
     </TABLE>>];
 
-  PROGRESS [label=<
-    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#FFF3B0">
-      <TR><TD BGCOLOR="#FCE38A"><B>PROGRESS</B></TD></TR>
-      <TR><TD ALIGN="LEFT">status</TD></TR>
-      <TR><TD ALIGN="LEFT">updated_at</TD></TR>
-    </TABLE>>];
-
   MODULES [label=<
     <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#FFF3B0">
       <TR><TD BGCOLOR="#FCE38A"><B>MODULES</B></TD></TR>
@@ -50,36 +43,33 @@ digraph MCD {
       <TR><TD ALIGN="LEFT">created_at</TD></TR>
     </TABLE>>];
 
-  MODULE_RESOURCES [label=<
-    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#FFF3B0">
-      <TR><TD BGCOLOR="#FCE38A"><B>MODULE_RESOURCES</B></TD></TR>
-      <TR><TD ALIGN="LEFT">display_order</TD></TR>
+  // Associations : les associations (n,n) Suivre et Proposer sont porteuses de donnees
+  // et deviennent les tables PROGRESSION et MODULE_RESSOURCES au passage au MLD.
+  node [shape=ellipse, style=filled, fillcolor="#4DD9E8", fontsize=11, margin=0.05];
+
+  AvoirPourRole [label="Avoir pour role"];
+
+  Suivre [label=<
+    <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="1">
+      <TR><TD><B>Suivre</B></TD></TR>
+      <TR><TD BORDER="1" SIDES="T">status</TD></TR>
+      <TR><TD>updated_at</TD></TR>
     </TABLE>>];
 
-  APossede [label="A pour role", shape=ellipse, style=filled, fillcolor="#4DD9E8", fontsize=11];
-  Suit      [label="Suit",      shape=ellipse, style=filled, fillcolor="#4DD9E8", fontsize=11];
-  Concerne  [label="Concerne",  shape=ellipse, style=filled, fillcolor="#4DD9E8", fontsize=11];
-  Propose   [label="Propose",   shape=ellipse, style=filled, fillcolor="#4DD9E8", fontsize=11];
-  Cible     [label="Cible",     shape=ellipse, style=filled, fillcolor="#4DD9E8", fontsize=11];
+  Proposer [label=<
+    <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="1">
+      <TR><TD><B>Proposer</B></TD></TR>
+      <TR><TD BORDER="1" SIDES="T">display_order</TD></TR>
+    </TABLE>>];
 
-  USERS -> APossede [label="1,1", dir=none];
-  APossede -> ROLES [label="0,n", dir=none];
+  USERS -> Avoir [label="1,1", dir=none];
+  AvoirPourRole -> ROLES [label="0,n", dir=none];
 
-  USERS -> Suit [label="0,n", dir=none];
-  Suit -> PROGRESS [label="1,1", dir=none];
+  USERS -> Suivre [label="0,n", dir=none];
+  Suivre -> MODULES [label="0,n", dir=none];
 
-  PROGRESS -> Concerne [label="1,1", dir=none];
-  Concerne -> MODULES [label="0,n", dir=none];
-
-  MODULES -> Propose [label="0,n", dir=none];
-  Propose -> MODULE_RESOURCES [label="1,1", dir=none];
-
-  MODULE_RESOURCES -> Cible [label="1,1", dir=none];
-  Cible -> RESOURCES [label="0,n", dir=none];
+  MODULES -> Proposer [label="0,n", dir=none];
+  Proposer -> RESOURCES [label="0,n", dir=none];
 
   { rank=same; ROLES; USERS; }
-  { rank=same; PROGRESS; }
-  { rank=same; MODULES; }
-  { rank=same; MODULE_RESOURCES; }
-  { rank=same; RESOURCES; }
 }

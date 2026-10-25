@@ -1,9 +1,10 @@
 import cors from "cors";
+import connectPgSimple from "connect-pg-simple";
 import express from "express";
 import session from "express-session";
-
 import { errorHandler, notFoundHandler } from "./middlewares/errors.js";
 import { router } from "./routes/index.js";
+import helmet from "helmet";
 
 function resolveSessionSecret(): string {
   const secret = process.env.SESSION_SECRET;
@@ -17,9 +18,13 @@ function resolveSessionSecret(): string {
 }
 
 const sessionSecret = resolveSessionSecret();
-
+const PgSessionStore = connectPgSimple(session);
 export const app = express();
-
+const trustedProxies = Number(process.env.TRUST_PROXY ?? 0);
+if (trustedProxies > 0) {
+  app.set("trust proxy", trustedProxies);
+}
+app.use(helmet());
 app.use(
   cors({
     origin: process.env.FRONTEND_URL ?? "http://localhost:3000",
@@ -33,6 +38,10 @@ app.use(
     secret: sessionSecret,
     resave: false,
     saveUninitialized: false,
+    store:
+      process.env.NODE_ENV === "test"
+        ? undefined
+        : new PgSessionStore({ conString: process.env.DATABASE_URL }),
     cookie: {
       httpOnly: true,
       secure: process.env.COOKIE_SECURE === "true",

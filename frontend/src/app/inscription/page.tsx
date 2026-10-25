@@ -65,6 +65,7 @@ export default function InscriptionPage() {
             type="password"
             autoComplete="new-password"
             minLength={8}
+            maxLength={128}
             required
             aria-describedby="password-hint"
             value={password}

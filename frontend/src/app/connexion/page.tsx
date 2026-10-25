@@ -25,8 +25,8 @@ export default function ConnexionPage() {
       await login(email, password);
       router.push("/");
       router.refresh();
-    } catch {
-      setError("Identifiants invalides");
+    } catch (error) {
+      setError(error instanceof Error && error.message ? error.message : "Identifiants invalides");
     } finally {
       setIsSubmitting(false);
     }
@@ -65,13 +65,9 @@ export default function ConnexionPage() {
             type="password"
             autoComplete="current-password"
             required
-            aria-describedby="password-hint"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
           />
-          <p id="password-hint" className={styles.hint}>
-            8 caractères minimum.
-          </p>
 
           {error && (
             <p className={styles.error} role="alert" aria-live="polite">

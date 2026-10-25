@@ -9,11 +9,17 @@ export type AuthUser = {
 class ApiError extends Error {}
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${API_URL}${path}`, {
-    ...init,
-    credentials: "include",
-    headers: { "Content-Type": "application/json", ...init?.headers },
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API_URL}${path}`, {
+      ...init,
+      credentials: "include",
+      headers: { "Content-Type": "application/json", ...init?.headers },
+    });
+  } catch {
+    // Erreur reseau ou CORS : la requete n'a jamais atteint l'API
+    throw new ApiError("Impossible de joindre le serveur");
+  }
 
   if (!response.ok) {
     const body = (await response.json().catch(() => null)) as { error?: string } | null;

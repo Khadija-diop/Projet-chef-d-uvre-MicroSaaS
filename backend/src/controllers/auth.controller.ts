@@ -8,10 +8,17 @@ export async function register(req: Request, res: Response, next: NextFunction):
     const { email, password } = req.body as { email: string; password: string };
     const user = await registerLearner(email, password);
 
-    req.session.userId = user.id;
-    req.session.role = user.role;
+    req.session.regenerate((error) => {
+      if (error) {
+        next(error);
+        return;
+      }
 
-    res.status(201).json(user);
+      req.session.userId = user.id;
+      req.session.role = user.role;
+      res.status(201).json(user);
+    });
+
   } catch (error) {
     next(error);
   }
@@ -22,10 +29,17 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
     const { email, password } = req.body as { email: string; password: string };
     const user = await authenticate(email, password);
 
-    req.session.userId = user.id;
-    req.session.role = user.role;
+    req.session.regenerate((error) => {
+      if (error) {
+        next(error);
+        return;
+      }
 
-    res.json(user);
+      req.session.userId = user.id;
+      req.session.role = user.role;
+      res.json(user);
+    });
+
   } catch (error) {
     next(error);
   }
