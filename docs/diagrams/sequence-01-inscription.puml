@@ -1,0 +1,34 @@
+@startuml sequence-01-inscription
+!include sequence-common.iuml
+title 1. Inscription (POST /api/auth/register)
+
+User -> FE : consulter la presentation du produit
+FE --> User : page d'accueil et promesse du parcours
+
+User -> FE : creer un compte
+FE -> API : POST /api/auth/register
+
+API -> API : valider le payload (Zod : email, password >= 8 caracteres)
+alt payload invalide
+  API --> FE : 400 Bad Request
+  FE --> User : erreur de validation affichee
+else payload valide
+  API -> Svc : registerLearner(email, password)
+  Svc -> DB : verifier email existant (users)
+  DB --> Svc : email libre / deja utilise
+  alt email deja utilise
+    Svc --> API : AppError 409
+    API --> FE : 409 Conflict
+    FE --> User : "un compte existe deja"
+  else email libre
+    Svc -> Svc : hacher le mot de passe (bcrypt)
+    Svc -> DB : creer l'utilisateur (email, password_hash, role_id -> learner)
+    DB --> Svc : utilisateur cree
+    Svc --> API : { id, email, role }
+    API -> API : ouvrir la session (cookie HttpOnly, Secure, SameSite=Lax)
+    API --> FE : 201 Created + Set-Cookie: connect.sid
+    FE --> User : acces a l'espace connecte
+  end
+end
+
+@enduml

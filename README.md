@@ -1,6 +1,6 @@
 # Parcours DevOps Guide
 
-Projet de chef-d'oeuvre concu comme un **site-lab pedagogique** pour apprendre le DevOps par la pratique et aider d'autres apprenant·es a suivre un parcours clair.
+Projet de chef-d'oeuvre concu comme un **un site-lab pédagogique pour apprendre le DevOps en le pratiquant sur un vrai projet — celui-là même.
 
 ## MicroSaaS de la Phase 1
 
@@ -107,7 +107,7 @@ Detaillee et justifiee dans `docs/ARCHITECTURE.md`.
 
 ### Application
 
-- `Next.js` + `TypeScript` + `React Router` pour le frontend
+- `Next.js` + `TypeScript` + `` pour le frontend
 - `Node.js` + `Express` + `TypeScript` pour le backend
 - `PostgreSQL` + `Prisma` pour la base relationnelle
 

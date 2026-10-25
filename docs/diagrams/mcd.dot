@@ -1,0 +1,75 @@
+digraph MCD {
+  rankdir=LR;
+  bgcolor="#F0F0F0";
+  node [fontname="Helvetica"];
+  edge [fontname="Helvetica", fontsize=11];
+
+  node [shape=none, margin=0];
+
+  ROLES [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#FFF3B0">
+      <TR><TD BGCOLOR="#FCE38A"><B>ROLES</B></TD></TR>
+      <TR><TD ALIGN="LEFT"><U>code</U></TD></TR>
+      <TR><TD ALIGN="LEFT">libelle</TD></TR>
+      <TR><TD ALIGN="LEFT">description</TD></TR>
+    </TABLE>>];
+
+  USERS [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#FFF3B0">
+      <TR><TD BGCOLOR="#FCE38A"><B>USERS</B></TD></TR>
+      <TR><TD ALIGN="LEFT"><U>email</U></TD></TR>
+      <TR><TD ALIGN="LEFT">password_hash</TD></TR>
+      <TR><TD ALIGN="LEFT">created_at</TD></TR>
+      <TR><TD ALIGN="LEFT">updated_at</TD></TR>
+    </TABLE>>];
+
+  MODULES [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#FFF3B0">
+      <TR><TD BGCOLOR="#FCE38A"><B>MODULES</B></TD></TR>
+      <TR><TD ALIGN="LEFT"><U>title</U></TD></TR>
+      <TR><TD ALIGN="LEFT">short_description</TD></TR>
+      <TR><TD ALIGN="LEFT">learning_objective</TD></TR>
+      <TR><TD ALIGN="LEFT">display_order</TD></TR>
+      <TR><TD ALIGN="LEFT">publication_status</TD></TR>
+      <TR><TD ALIGN="LEFT">created_at</TD></TR>
+      <TR><TD ALIGN="LEFT">updated_at</TD></TR>
+    </TABLE>>];
+
+  RESOURCES [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#FFF3B0">
+      <TR><TD BGCOLOR="#FCE38A"><B>RESOURCES</B></TD></TR>
+      <TR><TD ALIGN="LEFT"><U>content</U></TD></TR>
+      <TR><TD ALIGN="LEFT">resource_type</TD></TR>
+      <TR><TD ALIGN="LEFT">created_at</TD></TR>
+    </TABLE>>];
+
+  // Associations : les associations (n,n) Suivre et Proposer sont porteuses de donnees
+  // et deviennent les tables PROGRESSION et MODULE_RESSOURCES au passage au MLD.
+  node [shape=ellipse, style=filled, fillcolor="#4DD9E8", fontsize=11, margin=0.05];
+
+  AvoirPourRole [label="Avoir pour role"];
+
+  Suivre [label=<
+    <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="1">
+      <TR><TD><B>Suivre</B></TD></TR>
+      <TR><TD BORDER="1" SIDES="T">status</TD></TR>
+      <TR><TD>updated_at</TD></TR>
+    </TABLE>>];
+
+  Proposer [label=<
+    <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="1">
+      <TR><TD><B>Proposer</B></TD></TR>
+      <TR><TD BORDER="1" SIDES="T">display_order</TD></TR>
+    </TABLE>>];
+
+  USERS -> Avoir [label="1,1", dir=none];
+  AvoirPourRole -> ROLES [label="0,n", dir=none];
+
+  USERS -> Suivre [label="0,n", dir=none];
+  Suivre -> MODULES [label="0,n", dir=none];
+
+  MODULES -> Proposer [label="0,n", dir=none];
+  Proposer -> RESOURCES [label="0,n", dir=none];
+
+  { rank=same; ROLES; USERS; }
+}

@@ -1,0 +1,13 @@
+' Style et participants partages par les diagrammes de sequence (sequence-0X-*.puml)
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam maxMessageSize 220
+skinparam BoxPadding 10
+skinparam defaultFontSize 14
+autonumber
+
+actor "Visiteur·se /\nApprenant·e" as User
+participant "Frontend (SPA)" as FE
+participant "API (Express)" as API
+participant "Service metier" as Svc
+database "PostgreSQL" as DB
