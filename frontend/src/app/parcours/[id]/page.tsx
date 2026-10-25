@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 
 import { getModule, type ModuleDetail } from "@/lib/api";
 
+import { LessonContent } from "../lesson-content";
 import { UserMenu } from "../../user-menu";
 import homeStyles from "../../page.module.css";
 import styles from "../parcours.module.css";
@@ -16,6 +17,10 @@ const RESOURCE_TYPE_LABELS: Record<ModuleDetail["resources"][number]["resourceTy
   link: "Lien",
   checklist: "Checklist",
 };
+
+// "link" et "video" pointent vers une ressource externe (le contenu est une URL) ;
+// "article" et "checklist" portent du contenu redige directement dans la ressource.
+const EXTERNAL_LINK_TYPES = new Set<ModuleDetail["resources"][number]["resourceType"]>(["link", "video"]);
 
 export default function ModuleDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -78,12 +83,12 @@ export default function ModuleDetailPage() {
                       <span className={styles.resourceType}>
                         {RESOURCE_TYPE_LABELS[resource.resourceType]}
                       </span>
-                      {resource.resourceType === "checklist" ? (
-                        <span>{resource.content}</span>
-                      ) : (
+                      {EXTERNAL_LINK_TYPES.has(resource.resourceType) ? (
                         <a href={resource.content} target="_blank" rel="noreferrer noopener">
                           {resource.content}
                         </a>
+                      ) : (
+                        <LessonContent text={resource.content} />
                       )}
                     </li>
                   ))}

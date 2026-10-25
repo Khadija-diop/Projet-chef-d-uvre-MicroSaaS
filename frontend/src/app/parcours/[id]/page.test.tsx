@@ -54,6 +54,49 @@ describe("Page detail d'un module", () => {
     expect(screen.getByText("Checklist Git")).toBeInTheDocument();
   });
 
+  it("affiche le contenu d'une ressource de type article comme du texte, pas comme un lien", async () => {
+    getModuleMock.mockResolvedValue({
+      id: "module-1",
+      title: "Git essentiel",
+      shortDescription: "Les bases de Git",
+      learningObjective: "Savoir versionner son code",
+      displayOrder: 1,
+      resources: [
+        { id: "resource-1", content: "Un article redige sur Git.", resourceType: "article", displayOrder: 1 },
+      ],
+    });
+
+    render(<ModuleDetailPage />);
+
+    expect(await screen.findByText("Un article redige sur Git.")).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Un article redige sur Git." })).not.toBeInTheDocument();
+  });
+
+  it("met en forme le markdown d'une lecon (titres, liste, code inline)", async () => {
+    getModuleMock.mockResolvedValue({
+      id: "module-1",
+      title: "Git essentiel",
+      shortDescription: "Les bases de Git",
+      learningObjective: "Savoir versionner son code",
+      displayOrder: 1,
+      resources: [
+        {
+          id: "resource-1",
+          resourceType: "article",
+          displayOrder: 1,
+          content: "## Les concepts cles\n- Commit : un instantane.\n\n## Exemple pratique\nLance `git status` pour voir l'etat du depot.",
+        },
+      ],
+    });
+
+    render(<ModuleDetailPage />);
+
+    expect(await screen.findByRole("heading", { name: "Les concepts cles" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Exemple pratique" })).toBeInTheDocument();
+    expect(screen.getByText("Commit : un instantane.")).toBeInTheDocument();
+    expect(screen.getByText("git status")).toHaveProperty("tagName", "CODE");
+  });
+
   it("affiche un message quand le module n'a pas de ressource", async () => {
     getModuleMock.mockResolvedValue({
       id: "module-1",
