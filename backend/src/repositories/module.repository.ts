@@ -6,3 +6,15 @@ export function findPublishedModules() {
     orderBy: { displayOrder: "asc" },
   });
 }
+
+export function findPublishedModuleById(id: string) {
+  return prisma.module.findFirst({
+    where: { id, publicationStatus: "published" },
+    include: {
+      resources: {
+        orderBy: { displayOrder: "asc" },
+        include: { resource: true },
+      },
+    },
+  });
+}
