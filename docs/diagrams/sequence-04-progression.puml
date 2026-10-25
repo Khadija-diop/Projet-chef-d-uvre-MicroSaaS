@@ -1,0 +1,25 @@
+@startuml sequence-04-progression
+!include sequence-common.iuml
+title 4. Progression - fonctionnalite principale (PATCH /api/progress/{moduleId})
+
+User -> FE : marquer le module comme termine
+FE -> API : PATCH /api/progress/{moduleId}\nCookie: connect.sid
+
+API -> API : verifier la session (requireAuth)
+alt session absente ou expiree
+  API --> FE : 401 Unauthorized
+  FE --> User : redirection vers la connexion
+else session valide
+  API -> Svc : enregistrer progression(userId, moduleId)
+  Svc -> DB : lire progression existante (progress)
+  DB --> Svc : aucune ligne ou ligne existante
+  Svc -> DB : inserer ou mettre a jour (status = done)
+  DB --> Svc : progression persistee
+  Svc -> DB : agreger progression globale (modules termines / restants)
+  DB --> Svc : indicateurs de progression
+  Svc --> API : progression a jour
+  API --> FE : 200 succes + progression globale
+  FE --> User : module marque termine et progression mise a jour
+end
+
+@enduml

@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcryptjs";
+import argon2 from "argon2";
+
 
 const prisma = new PrismaClient();
 
@@ -30,14 +31,25 @@ const modules = [
   },
   {
     displayOrder: 4,
+    title: "Podman, une alternative a Docker",
+    shortDescription: "Decouvrir Podman et la conteneurisation sans daemon.",
+    learningObjective: "Construire et executer un conteneur avec Podman.",
+    publicationStatus: "published" as const,
+    resources: [{ resourceType: "article" as const, content: "https://example.org/podman-intro", displayOrder: 1 }],
+  },
+  {
+    displayOrder: 5,
     title: "Integration continue (CI)",
     shortDescription: "Automatiser les verifications a chaque changement de code.",
     learningObjective: "Mettre en place un pipeline CI avec GitHub Actions.",
     publicationStatus: "published" as const,
-    resources: [{ resourceType: "article" as const, content: "https://example.org/ci-intro", displayOrder: 1 }],
+    resources: [
+      { resourceType: "article" as const, content: "https://example.org/ci-intro", displayOrder: 1 },
+      { resourceType: "article" as const, content: "https://example.org/git-versioning", displayOrder: 2 },
+    ],
   },
   {
-    displayOrder: 5,
+    displayOrder: 6,
     title: "Deploiement continu (CD)",
     shortDescription: "Automatiser la livraison d'une application.",
     learningObjective: "Comprendre les strategies de deploiement continu.",
@@ -45,7 +57,7 @@ const modules = [
     resources: [{ resourceType: "article" as const, content: "https://example.org/cd-intro", displayOrder: 1 }],
   },
   {
-    displayOrder: 6,
+    displayOrder: 7,
     title: "Infrastructure as Code",
     shortDescription: "Decrire son infrastructure dans du code versionne.",
     learningObjective: "Comprendre les principes de l'Infrastructure as Code.",
@@ -53,7 +65,15 @@ const modules = [
     resources: [],
   },
   {
-    displayOrder: 7,
+    displayOrder: 8,
+    title: "Ansible et l'automatisation de configuration",
+    shortDescription: "Automatiser la configuration de serveurs avec Ansible.",
+    learningObjective: "Ecrire un playbook Ansible pour configurer un serveur cible.",
+    publicationStatus: "published" as const,
+    resources: [{ resourceType: "article" as const, content: "https://example.org/ansible-intro", displayOrder: 1 }],
+  },
+  {
+    displayOrder: 9,
     title: "Monitoring et observabilite",
     shortDescription: "Savoir si une application fonctionne correctement.",
     learningObjective: "Mettre en place des indicateurs de suivi basiques.",
@@ -61,7 +81,15 @@ const modules = [
     resources: [{ resourceType: "link" as const, content: "https://example.org/monitoring", displayOrder: 1 }],
   },
   {
-    displayOrder: 8,
+    displayOrder: 10,
+    title: "Securite web",
+    shortDescription: "Connaitre les vulnerabilites web courantes et comment s'en proteger.",
+    learningObjective: "Identifier les risques OWASP Top 10 et appliquer les bonnes pratiques de base.",
+    publicationStatus: "published" as const,
+    resources: [{ resourceType: "article" as const, content: "https://example.org/securite-web", displayOrder: 1 }],
+  },
+  {
+    displayOrder: 11,
     title: "Securite DevOps",
     shortDescription: "Appliquer les reflexes de securite applicative de base.",
     learningObjective: "Identifier et corriger les vulnerabilites courantes.",
@@ -70,34 +98,80 @@ const modules = [
   },
 ];
 
-async function main() {
-  for (const { resources, ...module } of modules) {
-    await prisma.module.upsert({
-      where: { title: module.title },
-      update: module,
-      create: { ...module, resources: { create: resources } },
-    });
+/**
+ * Une ressource peut desormais etre partagee par plusieurs modules (table de jointure
+ * module_resources), donc on l'upsert par contenu (pas de create imbrique via Module).
+ */
+async function upsertResourceByContent(resourceType: (typeof modules)[number]["resources"][number]["resourceType"], content: string) {
+  const existing = await prisma.resource.findFirst({ where: { content } });
+  if (existing) {
+    return existing;
   }
 
-  const adminPassword = await bcrypt.hash("admin-devops-guide", 10);
+  return prisma.resource.create({ data: { resourceType, content } });
+}
+
+async function main() {
+  
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("Le seed de developpement ne doit pas etre lance en production");
+  }
+  await prisma.role.upsert({
+    where: { code: "learner" },
+    update: {},
+    create: { code: "learner", libelle: "Apprenant", description: "Suit le parcours et enregistre sa progression" },
+  });
+  await prisma.role.upsert({
+    where: { code: "admin" },
+    update: {},
+    create: { code: "admin", libelle: "Administrateur", description: "Gere les modules et les ressources" },
+  });
+
+  // Decale d'abord les modules existants vers des display_order temporaires et negatifs
+  // (donc hors de la plage 1..N utilisee ci-dessous) pour eviter toute collision avec la
+  // contrainte unique display_order quand un reordonnancement change l'ordre des modules.
+  const existingModules = await prisma.module.findMany({ select: { id: true } });
+  for (const [index, existing] of existingModules.entries()) {
+    await prisma.module.update({ where: { id: existing.id }, data: { displayOrder: -(index + 1) } });
+  }
+
+  for (const { resources, ...module } of modules) {
+    const createdModule = await prisma.module.upsert({
+      where: { title: module.title },
+      update: module,
+      create: module,
+    });
+
+    for (const { resourceType, content, displayOrder } of resources) {
+      const resource = await upsertResourceByContent(resourceType, content);
+
+      await prisma.moduleResource.upsert({
+        where: { moduleId_resourceId: { moduleId: createdModule.id, resourceId: resource.id } },
+        update: { displayOrder },
+        create: { moduleId: createdModule.id, resourceId: resource.id, displayOrder },
+      });
+    }
+  }
+
+  const adminPassword = await argon2.hash("admin-devops-guide");
   await prisma.user.upsert({
     where: { email: "admin@parcours-devops-guide.local" },
     update: {},
     create: {
       email: "admin@parcours-devops-guide.local",
-      password: adminPassword,
-      role: "admin",
+      passwordHash: adminPassword,
+      role: { connect: { code: "admin" } },
     },
   });
 
-  const learnerPassword = await bcrypt.hash("apprenant-devops-guide", 10);
+  const learnerPassword = await argon2.hash("apprenant-devops-guide");
   const learner = await prisma.user.upsert({
     where: { email: "apprenant@parcours-devops-guide.local" },
     update: {},
     create: {
       email: "apprenant@parcours-devops-guide.local",
-      password: learnerPassword,
-      role: "learner",
+      passwordHash: learnerPassword,
+      role: { connect: { code: "learner" } },
     },
   });
 
@@ -124,8 +198,8 @@ async function main() {
 
 main()
   .then(async () => {
-    await prisma.$disconnect();
-  })
+  await prisma.$disconnect();
+})
   .catch(async (error) => {
     console.error(error);
     await prisma.$disconnect();

@@ -6,14 +6,39 @@ export type AuthUser = {
   role: "learner" | "admin";
 };
 
+export type ModuleSummary = {
+  id: string;
+  title: string;
+  shortDescription: string;
+  learningObjective: string;
+  displayOrder: number;
+};
+
+export type ModuleResourceItem = {
+  id: string;
+  content: string;
+  resourceType: "article" | "video" | "link" | "checklist";
+  displayOrder: number;
+};
+
+export type ModuleDetail = ModuleSummary & {
+  resources: ModuleResourceItem[];
+};
+
 class ApiError extends Error {}
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${API_URL}${path}`, {
-    ...init,
-    credentials: "include",
-    headers: { "Content-Type": "application/json", ...init?.headers },
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API_URL}${path}`, {
+      ...init,
+      credentials: "include",
+      headers: { "Content-Type": "application/json", ...init?.headers },
+    });
+  } catch {
+    // Erreur reseau ou CORS : la requete n'a jamais atteint l'API
+    throw new ApiError("Impossible de joindre le serveur");
+  }
 
   if (!response.ok) {
     const body = (await response.json().catch(() => null)) as { error?: string } | null;
@@ -47,4 +72,12 @@ export function logout() {
 
 export function getCurrentUser() {
   return request<AuthUser | null>("/api/auth/me");
+}
+
+export function listModules() {
+  return request<ModuleSummary[]>("/api/modules");
+}
+
+export function getModule(id: string) {
+  return request<ModuleDetail>(`/api/modules/${id}`);
 }

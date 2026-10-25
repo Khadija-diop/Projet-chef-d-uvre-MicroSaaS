@@ -99,7 +99,7 @@ Architecture **multicouche**, avec une séparation frontend / backend explicite 
 
 | | |
 | --- | --- |
-| **Frontend** | Next.js · TypeScript · React Router |
+| **Frontend** | Next.js · TypeScript ·  |
 | **Backend** | Node.js · Express · TypeScript |
 | **Base de données** | PostgreSQL · Prisma (ORM) |
 | **Versioning & CI** | GitHub · GitHub Actions |
@@ -117,7 +117,7 @@ Architecture **multicouche**, avec une séparation frontend / backend explicite 
 
 ## 5. Modèle de données (MERISE)
 
-Quatre entités couvrent la V1 : **USERS**, **MODULES**, **RESOURCES**, **PROGRESS** cette dernière matérialisant l'association N,N entre un utilisateur et un module, avec un statut (`a_faire` / `en_cours` / `termine`) comme attribut porté.
+Quatre entités couvrent la V1 : **USERS**, **MODULES**, **RESOURCES**, **PROGRESS** cette dernière matérialisant l'association N,N entre un utilisateur et un module, avec un statut (`todo` / `in_progress` / `done`) comme attribut porté.
 
 ### MCD Modèle Conceptuel de Données
 

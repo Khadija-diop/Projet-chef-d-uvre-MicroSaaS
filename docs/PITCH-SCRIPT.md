@@ -50,7 +50,7 @@ Marge de sécurité : viser 9:30 à la répétition pour absorber les aléas de 
 ### 5. Architecture et choix techniques (1:15)
 
 - Architecture multicouche, séparation frontend/backend non négociable.
-- Stack : Next.js/TypeScript/React Router (frontend), Node.js/Express/TypeScript (backend), PostgreSQL/Prisma (données).
+- Stack : Next.js/TypeScript/ (frontend), Node.js/Express/TypeScript (backend), PostgreSQL/Prisma (données).
 - Une phrase sur le pourquoi : simple à maintenir, pertinent pour une V1, séparation claire des responsabilités.
 
 ### 6. Modèle de données et sécurité (1:00)

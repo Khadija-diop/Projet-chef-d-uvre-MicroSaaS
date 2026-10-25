@@ -16,8 +16,35 @@
 }
 
 .brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   font-weight: 700;
   color: var(--color-text);
+}
+
+/* Logo boussole, repris du prototype (mes-guides/prototype.html) */
+.brandIcon,
+.btnIcon {
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Dans la barre : boussole bleue */
+.brandIcon {
+  width: 22px;
+  height: 22px;
+  color: var(--color-primary);
+}
+
+/* Dans un bouton : la boussole prend la couleur du texte du bouton (blanc sur le bouton bleu) */
+.btnIcon {
+  width: 18px;
+  height: 18px;
 }
 
 .brand:hover {
@@ -37,6 +64,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: var(--space-2);
   padding: var(--space-3) var(--space-5);
   border-radius: var(--radius-sm);
   font-weight: 600;
@@ -65,6 +93,12 @@
   background: var(--color-primary-soft);
   border-color: var(--color-primary);
   text-decoration: none;
+}
+
+/* Dans la barre de navigation, les boutons sont plus compacts */
+.nav .btnPrimary,
+.nav .btnSecondary {
+  padding: var(--space-2) var(--space-4);
 }
 
 /* Contenu */
@@ -157,7 +191,25 @@
   color: var(--color-text-muted);
   text-align: center;
 }
+/* Menu utilisateur connecte : badge + bouton de deconnexion */
+.userMenu {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
 
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--color-primary-soft);
+  color: var(--color-primary-hover);
+  font-weight: 700;
+  font-size: 0.8125rem;
+}
 @media (max-width: 720px) {
   .topbar {
     padding: var(--space-4);

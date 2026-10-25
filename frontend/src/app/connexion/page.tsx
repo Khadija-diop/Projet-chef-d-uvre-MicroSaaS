@@ -6,6 +6,7 @@ import { useState } from "react";
 
 import { login } from "@/lib/api";
 
+import { AuthTabs } from "../auth-tabs";
 import styles from "../auth.module.css";
 
 export default function ConnexionPage() {
@@ -24,8 +25,8 @@ export default function ConnexionPage() {
       await login(email, password);
       router.push("/");
       router.refresh();
-    } catch {
-      setError("Identifiants invalides");
+    } catch (error) {
+      setError(error instanceof Error && error.message ? error.message : "Identifiants invalides");
     } finally {
       setIsSubmitting(false);
     }
@@ -34,7 +35,11 @@ export default function ConnexionPage() {
   return (
     <main className={styles.page}>
       <div className={styles.card}>
+        <AuthTabs active="connexion" />
+
         <h1 className={styles.title}>Se connecter</h1>
+        <p className={styles.subtitle}>Accède à ton parcours et à ta progression.</p>
+
         <form className={styles.form} onSubmit={handleSubmit}>
           <label className={styles.label} htmlFor="email">
             Email
@@ -76,7 +81,7 @@ export default function ConnexionPage() {
         </form>
 
         <p className={styles.switch}>
-          Pas encore de compte ? <Link href="/inscription">Creer un compte</Link>
+          Pas encore de compte ? <Link href="/inscription">Créer un compte</Link>
         </p>
       </div>
     </main>

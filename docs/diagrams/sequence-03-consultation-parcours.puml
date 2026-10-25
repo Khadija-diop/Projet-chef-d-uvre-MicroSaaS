@@ -1,0 +1,23 @@
+@startuml sequence-03-consultation-parcours
+!include sequence-common.iuml
+title 3. Consultation du parcours (GET /api/modules)
+
+== Liste des modules ==
+
+User -> FE : consulter la liste des modules publies
+FE -> API : GET /api/modules
+API -> DB : lire modules (publication_status = published)
+DB --> API : liste ordonnee par display_order
+API --> FE : modules disponibles
+FE --> User : liste des etapes du parcours
+
+== Detail d'un module ==
+
+User -> FE : ouvrir le detail d'un module
+FE -> API : GET /api/modules/{moduleId}
+API -> DB : lire module + ressources associees (module_resources)
+DB --> API : module, objectif, ressources (content, resource_type)
+API --> FE : detail pedagogique et ressources
+FE --> User : objectif + ressources (article, video, lien, checklist)
+
+@enduml
