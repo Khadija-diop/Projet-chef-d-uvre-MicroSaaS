@@ -179,6 +179,15 @@ describe("POST /api/modules/:id/quiz/attempts", () => {
     expect(response.status).toBe(400);
   });
 
+  it("renvoie 400 sans enregistrer de tentative quand aucune reponse n'est envoyee", async () => {
+    const agent = await loginAgent();
+
+    const response = await agent.post(`/api/modules/${moduleId}/quiz/attempts`).send({ answers: [] });
+
+    expect(response.status).toBe(400);
+    expect(mockedQuizRepo.createQuizAttempt).not.toHaveBeenCalled();
+  });
+
   it("renvoie 404 quand le module n'a pas de quiz", async () => {
     mockedQuizRepo.findQuizByModuleId.mockResolvedValue(null);
     const agent = await loginAgent();

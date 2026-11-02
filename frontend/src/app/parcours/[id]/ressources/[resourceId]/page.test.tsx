@@ -80,6 +80,30 @@ describe("Page detail d'une ressource", () => {
     expect(link).toHaveAttribute("target", "_blank");
   });
 
+  it("n'affiche pas de lien quand l'URL de la ressource n'est pas en http(s)", async () => {
+    getModuleMock.mockResolvedValue({
+      id: "module-1",
+      title: "Git essentiel",
+      shortDescription: "Les bases de Git",
+      learningObjective: "Savoir versionner son code",
+      displayOrder: 1,
+      resources: [
+        {
+          id: "resource-1",
+          title: "Lien piege",
+          resourceType: "link",
+          displayOrder: 1,
+          content: "javascript:alert(1)",
+        },
+      ],
+    });
+
+    render(<ResourceDetailPage />);
+
+    expect(await screen.findByText("Lien de ressource invalide.")).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Ouvrir la ressource" })).not.toBeInTheDocument();
+  });
+
   it("affiche un message quand la ressource est introuvable", async () => {
     getModuleMock.mockResolvedValue({
       id: "module-1",

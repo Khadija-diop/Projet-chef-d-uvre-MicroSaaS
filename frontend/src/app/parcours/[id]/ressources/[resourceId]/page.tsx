@@ -7,7 +7,7 @@ import { useAsyncData } from "@/lib/use-async-data";
 
 import { BackLink } from "../../../back-link";
 import { LessonContent } from "../../../lesson-content";
-import { EXTERNAL_LINK_TYPES, RESOURCE_TYPE_LABELS } from "../../../resource-meta";
+import { EXTERNAL_LINK_TYPES, isSafeExternalUrl, RESOURCE_TYPE_LABELS } from "../../../resource-meta";
 import { ResourceIcon } from "../../../resource-icon";
 import { SiteFooter, SiteHeader } from "../../../../site-shell";
 import homeStyles from "../../../../page.module.css";
@@ -48,7 +48,9 @@ export default function ResourceDetailPage() {
               </div>
             </div>
 
-            {EXTERNAL_LINK_TYPES.has(resource.resourceType) ? (
+            {!EXTERNAL_LINK_TYPES.has(resource.resourceType) ? (
+              <LessonContent text={resource.content} />
+            ) : isSafeExternalUrl(resource.content) ? (
               <a
                 className={homeStyles.btnPrimary}
                 href={resource.content}
@@ -58,7 +60,7 @@ export default function ResourceDetailPage() {
                 Ouvrir la ressource
               </a>
             ) : (
-              <LessonContent text={resource.content} />
+              <p className={styles.error}>Lien de ressource invalide.</p>
             )}
           </>
         )}

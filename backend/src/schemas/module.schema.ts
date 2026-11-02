@@ -5,10 +5,13 @@ export const moduleIdParamsSchema = z.object({
 });
 
 export const quizAttemptSchema = z.object({
-  answers: z.array(
-    z.object({
-      questionId: z.string().uuid("Identifiant de question invalide"),
-      choiceId: z.string().uuid("Identifiant de reponse invalide"),
-    }),
-  ),
+  answers: z
+    .array(
+      z.object({
+        questionId: z.string().uuid("Identifiant de question invalide"),
+        choiceId: z.string().uuid("Identifiant de reponse invalide"),
+      }),
+    )
+    .min(1, "Au moins une reponse est requise")
+    .max(50, "Trop de reponses"),
 });

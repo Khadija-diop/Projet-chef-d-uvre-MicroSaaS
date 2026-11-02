@@ -1,8 +1,8 @@
 import { prisma } from "./prismaClient.js";
 
 export function findQuizByModuleId(moduleId: string) {
-  return prisma.quiz.findUnique({
-    where: { moduleId },
+  return prisma.quiz.findFirst({
+    where: { moduleId, module: { publicationStatus: "published" } },
     include: {
       questions: {
         orderBy: { displayOrder: "asc" },

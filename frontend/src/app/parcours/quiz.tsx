@@ -1,34 +1,31 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-import { ApiError, getQuiz, submitQuizAttempt, type Quiz, type QuizAttemptResult } from "@/lib/api";
+import { ApiError, getQuiz, submitQuizAttempt, type QuizAttemptResult } from "@/lib/api";
+import { useAsyncData } from "@/lib/use-async-data";
 
 import homeStyles from "../page.module.css";
 import styles from "./parcours.module.css";
 import { ResourceIcon } from "./resource-icon";
 
 export function QuizSection({ moduleId }: { moduleId: string }) {
-  // undefined = chargement en cours, null = pas de quiz pour ce module (ou erreur de chargement)
-  const [quiz, setQuiz] = useState<Quiz | null | undefined>(undefined);
+  const { data: quiz, error } = useAsyncData(
+    () => getQuiz(moduleId),
+    [moduleId],
+    "Impossible de charger ce quiz pour le moment.",
+  );
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string>>({});
   const [result, setResult] = useState<QuizAttemptResult | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    async function loadQuiz() {
-      try {
-        setQuiz(await getQuiz(moduleId));
-      } catch {
-        setQuiz(null);
-      }
-    }
-    loadQuiz();
-  }, [moduleId]);
+  if (error) {
+    return <p className={styles.error}>{error}</p>;
+  }
 
   if (!quiz) {
-    return null;
+    return <p className={styles.empty}>Chargement...</p>;
   }
 
   const allAnswered = quiz.questions.every((question) => selectedAnswers[question.id]);

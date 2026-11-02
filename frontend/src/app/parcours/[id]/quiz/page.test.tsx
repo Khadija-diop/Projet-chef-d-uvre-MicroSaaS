@@ -59,12 +59,12 @@ describe("Page quiz d'un module", () => {
     ).toBeInTheDocument();
   });
 
-  it("n'affiche rien pour le quiz quand le module n'en a pas", async () => {
+  it("indique que le module n'a pas de quiz", async () => {
     getQuizMock.mockRejectedValue(new ApiError("Aucun quiz pour ce module", 404));
 
     render(<ModuleQuizPage />);
 
-    await vi.waitFor(() => expect(getQuizMock).toHaveBeenCalled());
+    expect(await screen.findByText("Aucun quiz pour ce module")).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Quiz" })).not.toBeInTheDocument();
   });
 });

@@ -38,13 +38,21 @@ beforeEach(() => {
 });
 
 describe("QuizSection", () => {
-  it("n'affiche rien quand le module n'a pas de quiz", async () => {
+  it("affiche le message de l'API quand le module n'a pas de quiz", async () => {
     getQuizMock.mockRejectedValue(new ApiError("Aucun quiz pour ce module", 404));
 
-    const { container } = render(<QuizSection moduleId="module-1" />);
+    render(<QuizSection moduleId="module-1" />);
 
-    await vi.waitFor(() => expect(getQuizMock).toHaveBeenCalled());
-    expect(container).toBeEmptyDOMElement();
+    expect(await screen.findByText("Aucun quiz pour ce module")).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Quiz" })).not.toBeInTheDocument();
+  });
+
+  it("affiche un message d'erreur quand le serveur est injoignable", async () => {
+    getQuizMock.mockRejectedValue(new ApiError("Impossible de joindre le serveur", 0));
+
+    render(<QuizSection moduleId="module-1" />);
+
+    expect(await screen.findByText("Impossible de joindre le serveur")).toBeInTheDocument();
   });
 
   it("affiche les questions et desactive la validation tant que tout n'est pas repondu", async () => {
