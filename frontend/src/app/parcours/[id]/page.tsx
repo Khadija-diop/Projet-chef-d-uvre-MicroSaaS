@@ -2,65 +2,31 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
 
-import { getModule, type ModuleDetail } from "@/lib/api";
+import { getModule } from "@/lib/api";
+import { useAsyncData } from "@/lib/use-async-data";
 
-import { LessonContent } from "../lesson-content";
-import { UserMenu } from "../../user-menu";
+import { BackLink } from "../back-link";
+import { RESOURCE_TYPE_LABELS } from "../resource-meta";
+import { ResourceIcon } from "../resource-icon";
+import { SiteFooter, SiteHeader } from "../../site-shell";
 import homeStyles from "../../page.module.css";
 import styles from "../parcours.module.css";
 
-const RESOURCE_TYPE_LABELS: Record<ModuleDetail["resources"][number]["resourceType"], string> = {
-  article: "Article",
-  video: "Video",
-  link: "Lien",
-  checklist: "Checklist",
-};
-
-// "link" et "video" pointent vers une ressource externe (le contenu est une URL) ;
-// "article" et "checklist" portent du contenu redige directement dans la ressource.
-const EXTERNAL_LINK_TYPES = new Set<ModuleDetail["resources"][number]["resourceType"]>(["link", "video"]);
-
 export default function ModuleDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const [moduleDetail, setModuleDetail] = useState<ModuleDetail | undefined>(undefined);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function loadModule() {
-      try {
-        setModuleDetail(await getModule(id));
-      } catch (caughtError) {
-        setError(
-          caughtError instanceof Error && caughtError.message
-            ? caughtError.message
-            : "Impossible de charger ce module pour le moment.",
-        );
-      }
-    }
-    loadModule();
-  }, [id]);
+  const { data: moduleDetail, error } = useAsyncData(
+    () => getModule(id),
+    [id],
+    "Impossible de charger ce module pour le moment.",
+  );
 
   return (
     <div className={homeStyles.page}>
-      <header className={homeStyles.topbar}>
-        <Link href="/" className={homeStyles.brand}>
-          <svg className={homeStyles.brandIcon} viewBox="0 0 24 24" aria-hidden="true">
-            <circle cx="12" cy="12" r="9" />
-            <path d="M15 9l-2 6-4-2 2-6z" />
-          </svg>
-          Parcours DevOps Guide
-        </Link>
-        <nav className={homeStyles.nav} aria-label="Compte">
-          <UserMenu />
-        </nav>
-      </header>
+      <SiteHeader />
 
       <main className={styles.main}>
-        <Link href="/parcours" className={styles.back}>
-          &larr; Retour au parcours
-        </Link>
+        <BackLink href="/parcours" label="Retour au parcours" />
 
         {error && <p className={styles.error}>{error}</p>}
 
@@ -68,38 +34,58 @@ export default function ModuleDetailPage() {
 
         {moduleDetail && (
           <>
-            <h1 className={styles.title}>{moduleDetail.title}</h1>
-            <p className={styles.objective}>{moduleDetail.learningObjective}</p>
-            <p className={styles.description}>{moduleDetail.shortDescription}</p>
+            <div className={styles.detailHead}>
+              <div>
+                <h1 className={styles.title}>{moduleDetail.title}</h1>
+                <p className={styles.description}>{moduleDetail.shortDescription}</p>
+              </div>
+            </div>
+
+            <div className={styles.objective}>
+              <span className={styles.objectiveLabel}>Objectif pédagogique</span>
+              <p>{moduleDetail.learningObjective}</p>
+            </div>
 
             <section className={styles.resources}>
               <h2>Ressources associees</h2>
-              {moduleDetail.resources.length === 0 ? (
+              {moduleDetail.resources.length === 0 && (
                 <p className={styles.empty}>Aucune ressource n&apos;est associee a ce module.</p>
-              ) : (
-                <ul className={styles.resourceList}>
-                  {moduleDetail.resources.map((resource) => (
-                    <li key={resource.id} className={styles.resource}>
+              )}
+              <ul className={styles.resourceList}>
+                {moduleDetail.resources.map((resource) => (
+                  <li key={resource.id}>
+                    <Link
+                      href={`/parcours/${moduleDetail.id}/ressources/${resource.id}`}
+                      className={styles.resourceRow}
+                    >
+                      <ResourceIcon type={resource.resourceType} />
+                      <span className={styles.resourceRowBody}>{resource.title}</span>
                       <span className={styles.resourceType}>
                         {RESOURCE_TYPE_LABELS[resource.resourceType]}
                       </span>
-                      {EXTERNAL_LINK_TYPES.has(resource.resourceType) ? (
-                        <a href={resource.content} target="_blank" rel="noreferrer noopener">
-                          {resource.content}
-                        </a>
-                      ) : (
-                        <LessonContent text={resource.content} />
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              )}
+                      <svg className={styles.moduleRowChevron} viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M9 6l6 6-6 6" />
+                      </svg>
+                    </Link>
+                  </li>
+                ))}
+                <li>
+                  <Link href={`/parcours/${moduleDetail.id}/quiz`} className={styles.resourceRow}>
+                    <ResourceIcon type="quiz" />
+                    <span className={styles.resourceRowBody}>Quiz</span>
+                    <span className={styles.resourceType}>Evaluation</span>
+                    <svg className={styles.moduleRowChevron} viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M9 6l6 6-6 6" />
+                    </svg>
+                  </Link>
+                </li>
+              </ul>
             </section>
           </>
         )}
       </main>
 
-      <footer className={homeStyles.footer}>Projet Chef-d&apos;oeuvre: DevOps Guide</footer>
+      <SiteFooter />
     </div>
   );
 }

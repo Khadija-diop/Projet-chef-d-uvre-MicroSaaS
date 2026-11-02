@@ -7,8 +7,8 @@ import { getCurrentUser, getModule } from "@/lib/api";
 import ModuleDetailPage from "./page";
 
 vi.mock("next/link", () => ({
-  default: ({ href, children }: { href: string; children: ReactNode }) =>
-    createElement("a", { href }, children),
+  default: ({ href, children, ...rest }: { href: string; children: ReactNode }) =>
+    createElement("a", { href, ...rest }, children),
 }));
 
 vi.mock("next/navigation", () => ({
@@ -30,49 +30,7 @@ beforeEach(() => {
 });
 
 describe("Page detail d'un module", () => {
-  it("affiche le module et ses ressources triees", async () => {
-    getModuleMock.mockResolvedValue({
-      id: "module-1",
-      title: "Git essentiel",
-      shortDescription: "Les bases de Git",
-      learningObjective: "Savoir versionner son code",
-      displayOrder: 1,
-      resources: [
-        { id: "resource-1", content: "https://git-scm.com/doc", resourceType: "link", displayOrder: 1 },
-        { id: "resource-2", content: "Checklist Git", resourceType: "checklist", displayOrder: 2 },
-      ],
-    });
-
-    render(<ModuleDetailPage />);
-
-    expect(await screen.findByText("Git essentiel")).toBeInTheDocument();
-    expect(screen.getByText("Savoir versionner son code")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "https://git-scm.com/doc" })).toHaveAttribute(
-      "href",
-      "https://git-scm.com/doc",
-    );
-    expect(screen.getByText("Checklist Git")).toBeInTheDocument();
-  });
-
-  it("affiche le contenu d'une ressource de type article comme du texte, pas comme un lien", async () => {
-    getModuleMock.mockResolvedValue({
-      id: "module-1",
-      title: "Git essentiel",
-      shortDescription: "Les bases de Git",
-      learningObjective: "Savoir versionner son code",
-      displayOrder: 1,
-      resources: [
-        { id: "resource-1", content: "Un article redige sur Git.", resourceType: "article", displayOrder: 1 },
-      ],
-    });
-
-    render(<ModuleDetailPage />);
-
-    expect(await screen.findByText("Un article redige sur Git.")).toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "Un article redige sur Git." })).not.toBeInTheDocument();
-  });
-
-  it("met en forme le markdown d'une lecon (titres, liste, code inline)", async () => {
+  it("affiche le module et ses ressources comme une liste de liens, triee", async () => {
     getModuleMock.mockResolvedValue({
       id: "module-1",
       title: "Git essentiel",
@@ -82,22 +40,34 @@ describe("Page detail d'un module", () => {
       resources: [
         {
           id: "resource-1",
+          title: "Le workflow Git essentiel",
+          content: "## Les concepts cles\n- Commit : un instantane.",
           resourceType: "article",
           displayOrder: 1,
-          content: "## Les concepts cles\n- Commit : un instantane.\n\n## Exemple pratique\nLance `git status` pour voir l'etat du depot.",
+        },
+        {
+          id: "resource-2",
+          title: "Documentation officielle Git",
+          content: "https://git-scm.com/doc",
+          resourceType: "link",
+          displayOrder: 2,
         },
       ],
     });
 
     render(<ModuleDetailPage />);
 
-    expect(await screen.findByRole("heading", { name: "Les concepts cles" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Exemple pratique" })).toBeInTheDocument();
-    expect(screen.getByText("Commit : un instantane.")).toBeInTheDocument();
-    expect(screen.getByText("git status")).toHaveProperty("tagName", "CODE");
+    expect(await screen.findByText("Git essentiel")).toBeInTheDocument();
+    expect(screen.getByText("Savoir versionner son code")).toBeInTheDocument();
+
+    const articleLink = screen.getByRole("link", { name: /Le workflow Git essentiel/ });
+    expect(articleLink).toHaveAttribute("href", "/parcours/module-1/ressources/resource-1");
+
+    const linkLink = screen.getByRole("link", { name: /Documentation officielle Git/ });
+    expect(linkLink).toHaveAttribute("href", "/parcours/module-1/ressources/resource-2");
   });
 
-  it("affiche un message quand le module n'a pas de ressource", async () => {
+  it("affiche toujours une ligne Quiz menant vers la page du quiz", async () => {
     getModuleMock.mockResolvedValue({
       id: "module-1",
       title: "Git essentiel",
@@ -109,9 +79,9 @@ describe("Page detail d'un module", () => {
 
     render(<ModuleDetailPage />);
 
-    expect(
-      await screen.findByText("Aucune ressource n'est associee a ce module."),
-    ).toBeInTheDocument();
+    const quizLink = await screen.findByRole("link", { name: /Quiz/ });
+    expect(quizLink).toHaveAttribute("href", "/parcours/module-1/quiz");
+    expect(screen.getByText("Aucune ressource n'est associee a ce module.")).toBeInTheDocument();
   });
 
   it("affiche un message d'erreur quand le module est introuvable", async () => {

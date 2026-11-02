@@ -1,43 +1,24 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
-import { listModules, type ModuleSummary } from "@/lib/api";
+import { listModules } from "@/lib/api";
+import { useAsyncData } from "@/lib/use-async-data";
 
-import { UserMenu } from "../user-menu";
+import { SiteFooter, SiteHeader } from "../site-shell";
 import homeStyles from "../page.module.css";
 import styles from "./parcours.module.css";
 
 export default function ParcoursPage() {
-  const [modules, setModules] = useState<ModuleSummary[] | undefined>(undefined);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function loadModules() {
-      try {
-        setModules(await listModules());
-      } catch {
-        setError("Impossible de charger le parcours pour le moment.");
-      }
-    }
-    loadModules();
-  }, []);
+  const { data: modules, error } = useAsyncData(
+    listModules,
+    [],
+    "Impossible de charger le parcours pour le moment.",
+  );
 
   return (
     <div className={homeStyles.page}>
-      <header className={homeStyles.topbar}>
-        <Link href="/" className={homeStyles.brand}>
-          <svg className={homeStyles.brandIcon} viewBox="0 0 24 24" aria-hidden="true">
-            <circle cx="12" cy="12" r="9" />
-            <path d="M15 9l-2 6-4-2 2-6z" />
-          </svg>
-          Parcours DevOps Guide
-        </Link>
-        <nav className={homeStyles.nav} aria-label="Compte">
-          <UserMenu />
-        </nav>
-      </header>
+      <SiteHeader />
 
       <main className={styles.main}>
         <h1 className={styles.title}>Le parcours</h1>
@@ -54,14 +35,20 @@ export default function ParcoursPage() {
         {modules && modules.length > 0 && (
           <ol className={styles.list}>
             {modules.map((module) => (
-              <li key={module.id} className={styles.item}>
-                <div className={styles.itemBody}>
-                  <span className={styles.order}>Module {module.displayOrder}</span>
-                  <h2>{module.title}</h2>
-                  <p>{module.shortDescription}</p>
-                </div>
-                <Link href={`/parcours/${module.id}`} className={homeStyles.btnSecondary}>
-                  Voir le detail
+              <li key={module.id}>
+                <Link
+                  href={`/parcours/${module.id}`}
+                  className={styles.moduleRow}
+                  aria-label={module.title}
+                >
+                  <span className={styles.moduleRowOrder}>{String(module.displayOrder).padStart(2, "0")}</span>
+                  <span className={styles.moduleRowBody}>
+                    <h2>{module.title}</h2>
+                    <p>{module.shortDescription}</p>
+                  </span>
+                  <svg className={styles.moduleRowChevron} viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M9 6l6 6-6 6" />
+                  </svg>
                 </Link>
               </li>
             ))}
@@ -69,7 +56,7 @@ export default function ParcoursPage() {
         )}
       </main>
 
-      <footer className={homeStyles.footer}>Projet Chef-d&apos;oeuvre: DevOps Guide</footer>
+      <SiteFooter />
     </div>
   );
 }

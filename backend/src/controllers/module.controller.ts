@@ -1,22 +1,15 @@
-import type { NextFunction, Request, Response } from "express";
+import type { Request, Response } from "express";
 
+import { asyncHandler } from "../middlewares/asyncHandler.js";
 import { getPublishedModuleById, listPublishedModules } from "../services/module.service.js";
 
-export async function listModules(_req: Request, res: Response, next: NextFunction): Promise<void> {
-  try {
-    const modules = await listPublishedModules();
-    res.json(modules);
-  } catch (error) {
-    next(error);
-  }
-}
+export const listModules = asyncHandler(async (_req: Request, res: Response) => {
+  const modules = await listPublishedModules();
+  res.json(modules);
+});
 
-export async function getModule(req: Request, res: Response, next: NextFunction): Promise<void> {
-  try {
-    const { id } = req.params as { id: string };
-    const module = await getPublishedModuleById(id);
-    res.json(module);
-  } catch (error) {
-    next(error);
-  }
-}
+export const getModule = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params as { id: string };
+  const module = await getPublishedModuleById(id);
+  res.json(module);
+});

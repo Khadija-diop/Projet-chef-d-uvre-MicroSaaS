@@ -176,6 +176,388 @@ Un reflexe simple et tres efficace : ajouter un fichier \`.gitignore\` des le de
 La plupart des incidents de securite ne viennent pas d'attaques sophistiquees mais d'erreurs basiques (secret expose, dependance obsolete, acces trop large) : les corriger en premier a souvent plus d'impact qu'un outil avance.`,
 };
 
+/** Titre affiche pour la ressource "article" de chaque module (distinct du contenu). */
+const lessonTitles: Record<keyof typeof lessons, string> = {
+  linux: "Les fondamentaux du terminal Linux",
+  git: "Le workflow Git essentiel",
+  docker: "Comprendre et utiliser Docker",
+  podman: "Podman, l'alternative sans demon",
+  ci: "Mettre en place l'integration continue",
+  cd: "Automatiser le deploiement continu",
+  iac: "Les principes de l'Infrastructure as Code",
+  ansible: "Automatiser la configuration avec Ansible",
+  monitoring: "Observer une application en production",
+  securiteWeb: "Les vulnerabilites web courantes",
+  securiteDevops: "Securiser la chaine de livraison",
+};
+
+/**
+ * Ressource "video" de chaque module : des videos existantes et reconnues (pas produites
+ * par nous), choisies pour completer la lecon. Verifiees une a une sur YouTube.
+ */
+const videos: Record<keyof typeof lessons, { title: string; url: string }> = {
+  linux: { title: "Video : prendre en main le terminal Linux", url: "https://www.youtube.com/watch?v=sWbUDq4S6Y8" },
+  git: { title: "Video : Git et GitHub de A a Z", url: "https://www.youtube.com/watch?v=RGOj5yH7evk" },
+  docker: { title: "Video : Docker pour debutants", url: "https://www.youtube.com/watch?v=3c-iBn73dDE" },
+  podman: { title: "Video : Podman, de zero a heros", url: "https://www.youtube.com/watch?v=YXfA5O5Mr18" },
+  ci: { title: "Video : mettre en place GitHub Actions", url: "https://www.youtube.com/watch?v=mhw7eyTA4KQ" },
+  cd: { title: "Video : comprendre le CI/CD en 8 minutes", url: "https://www.youtube.com/watch?v=ws1qGuFMYlc" },
+  iac: { title: "Video : Terraform explique simplement", url: "https://www.youtube.com/watch?v=VxsLlPVhlQc" },
+  ansible: { title: "Video : Ansible en 10 minutes", url: "https://www.youtube.com/watch?v=wKXdDCDqrTs" },
+  monitoring: { title: "Video : Prometheus et Grafana expliques", url: "https://www.youtube.com/watch?v=x_xkKiRZbKA" },
+  securiteWeb: { title: "Video : le Top 10 OWASP explique", url: "https://www.youtube.com/watch?v=xe9LN2w7hfE" },
+  securiteDevops: { title: "Video : comprendre le DevSecOps", url: "https://www.youtube.com/watch?v=pnkeQ_olSz0" },
+};
+
+/** Ressource "checklist" de chaque module : contenu pratique original, redige pour ce projet. */
+const checklists: Record<keyof typeof lessons, { title: string; content: string }> = {
+  linux: {
+    title: "Check-list : mon terminal Linux est pret",
+    content: `Avant de passer aux modules suivants, verifie que tu es a l'aise avec ces bases.
+
+- Se deplacer dans l'arborescence avec cd, pwd et ls -la
+- Lire le contenu d'un fichier avec cat ou less
+- Comprendre et modifier les permissions d'un fichier avec chmod
+- Chercher un mot dans des fichiers avec grep -r
+- Lister les processus en cours et en arreter un`,
+  },
+  git: {
+    title: "Check-list avant un commit propre",
+    content: `Quelques reflexes a prendre avant chaque commit.
+
+- Lancer git status pour verifier ce qui va etre commite
+- Relire son diff avec git diff avant de commiter
+- Ecrire un message de commit qui explique le pourquoi, pas juste le quoi
+- Verifier qu'aucun fichier .env ou secret n'est inclus
+- Travailler sur une branche dediee plutot que directement sur la branche principale`,
+  },
+  docker: {
+    title: "Check-list avant de conteneuriser une application",
+    content: `A verifier avant de construire une image pour la production.
+
+- Utiliser une image de base officielle et une version precise (pas latest)
+- Ajouter un fichier .dockerignore pour exclure node_modules et les fichiers sensibles
+- Ne pas faire tourner le processus en tant que root dans le conteneur
+- Garder l'image la plus petite possible (multi-stage build si besoin)
+- Verifier que les secrets ne sont jamais copies dans l'image`,
+  },
+  podman: {
+    title: "Check-list pour passer de Docker a Podman",
+    content: `Points a verifier avant de migrer une equipe ou un projet.
+
+- Verifier que les commandes utilisees n'ont pas d'option propre au daemon Docker
+- Tester le mode rootless sur un cas reel avant de generaliser
+- Verifier la compatibilite des volumes et du reseau utilises
+- Mettre a jour la documentation et les scripts CI qui appellent docker directement
+- Confirmer que podman info ne montre aucun demon actif`,
+  },
+  ci: {
+    title: "Check-list d'un pipeline CI fiable",
+    content: `A verifier pour qu'un pipeline CI soit utile, pas juste present.
+
+- Faire echouer vite les etapes rapides (lint, typecheck) avant les etapes lentes (tests, build)
+- Executer le pipeline sur chaque pull request, pas seulement sur la branche principale
+- Rendre le statut du pipeline requis avant de pouvoir fusionner
+- Mettre en cache les dependances pour accelerer les executions
+- Afficher clairement quelle etape a echoue et pourquoi`,
+  },
+  cd: {
+    title: "Check-list avant un deploiement automatise",
+    content: `A verifier avant d'automatiser completement une mise en production.
+
+- Avoir une suite de tests fiable qui bloque un deploiement casse
+- Prevoir un moyen simple de revenir a la version precedente (rollback)
+- Verifier la configuration de chaque environnement (dev, recette, production)
+- Ajouter une verification de sante apres le deploiement avant de couper l'ancienne version
+- Informer l'equipe quand un deploiement reussit ou echoue`,
+  },
+  iac: {
+    title: "Check-list avant un terraform apply",
+    content: `A verifier avant d'appliquer un changement d'infrastructure.
+
+- Lire integralement le resultat de terraform plan avant d'appliquer
+- Verifier que le state est stocke dans un backend partage, pas en local
+- Verser les fichiers .tf dans Git et les faire relire comme du code
+- Verrouiller les versions du provider pour eviter un changement de comportement inattendu
+- Ne jamais ecrire de secret en clair dans un fichier .tf`,
+  },
+  ansible: {
+    title: "Check-list avant de lancer un playbook",
+    content: `A verifier avant d'executer un playbook sur de vrais serveurs.
+
+- Verifier l'inventaire : le bon groupe de machines est cible
+- Lancer d'abord le playbook avec --check pour simuler sans rien modifier
+- Verifier que les taches sont bien idempotentes
+- Stocker les secrets avec Ansible Vault, jamais en clair dans le playbook
+- Tester sur un seul serveur avant de generaliser a tout le parc`,
+  },
+  monitoring: {
+    title: "Check-list observabilite minimale",
+    content: `Le socle minimal pour savoir si une application va bien.
+
+- Exposer un endpoint /health qui verifie l'application et ses dependances (base de donnees incluse)
+- Suivre au moins trois metriques : disponibilite, temps de reponse, taux d'erreur
+- Centraliser les logs plutot que de les laisser uniquement sur chaque serveur
+- Configurer une alerte qui previent une personne en cas de probleme, pas juste un graphique
+- Verifier regulierement que les alertes se declenchent vraiment (pas seulement en theorie)`,
+  },
+  securiteWeb: {
+    title: "Check-list securite avant la mise en ligne",
+    content: `Les reflexes de base contre les vulnerabilites web les plus courantes.
+
+- Utiliser des requetes parametrees, jamais de concatenation de chaines dans une requete SQL
+- Echapper systematiquement le contenu utilisateur affiche dans la page (protection XSS)
+- Verifier les droits d'acces cote serveur, jamais seulement cote interface
+- Ne jamais renvoyer de message d'erreur detaille (stack trace) a l'utilisateur
+- Garder les dependances a jour pour eviter une vulnerabilite connue`,
+  },
+  securiteDevops: {
+    title: "Check-list securite avant la mise en production",
+    content: `A verifier sur la chaine complete, pas seulement sur le code applicatif.
+
+- Verifier qu'aucun secret n'est present dans l'historique Git (pas seulement dans le code actuel)
+- Donner a chaque service et chaque cle d'API uniquement les droits necessaires
+- Verifier l'origine des dependances et des images utilisees
+- Mettre a jour regulierement les dependances et les images de base
+- Documenter qui a acces a quoi, et retirer les acces qui ne servent plus`,
+  },
+};
+
+type QuizChoiceSeed = { label: string; isCorrect: boolean };
+type QuizQuestionSeed = { prompt: string; choices: QuizChoiceSeed[] };
+
+/**
+ * Deux questions de quiz par module, pour l'auto-evaluation (issue #83).
+ * Une seule reponse correcte par question.
+ */
+const quizzes: Record<string, QuizQuestionSeed[]> = {
+  linux: [
+    {
+      prompt: "Quelle commande affiche les fichiers d'un dossier, y compris leurs permissions ?",
+      choices: [
+        { label: "ls -la", isCorrect: true },
+        { label: "cd -la", isCorrect: false },
+        { label: "pwd -la", isCorrect: false },
+      ],
+    },
+    {
+      prompt: "A quoi sert la variable d'environnement PATH ?",
+      choices: [
+        { label: "Elle liste les dossiers ou le shell cherche les commandes executables", isCorrect: true },
+        { label: "Elle stocke le mot de passe de l'utilisateur", isCorrect: false },
+        { label: "Elle definit la taille maximale d'un fichier", isCorrect: false },
+      ],
+    },
+  ],
+  git: [
+    {
+      prompt: "Que permet de faire une pull request ?",
+      choices: [
+        { label: "Proposer de fusionner une branche dans une autre, apres relecture", isCorrect: true },
+        { label: "Supprimer definitivement l'historique d'un depot", isCorrect: false },
+        { label: "Changer le mot de passe du compte Git", isCorrect: false },
+      ],
+    },
+    {
+      prompt: "Quelle commande enregistre un instantane du travail en cours, avec un message ?",
+      choices: [
+        { label: "git commit -m \"message\"", isCorrect: true },
+        { label: "git branch -m \"message\"", isCorrect: false },
+        { label: "git clone -m \"message\"", isCorrect: false },
+      ],
+    },
+  ],
+  docker: [
+    {
+      prompt: "Que decrit un Dockerfile ?",
+      choices: [
+        { label: "Les etapes pour construire une image Docker", isCorrect: true },
+        { label: "La liste des conteneurs en cours d'execution", isCorrect: false },
+        { label: "Les droits d'acces d'un utilisateur Linux", isCorrect: false },
+      ],
+    },
+    {
+      prompt: "Quelle est la difference entre une image et un conteneur ?",
+      choices: [
+        {
+          label: "Une image est un modele en lecture seule, un conteneur en est une instance en cours d'execution",
+          isCorrect: true,
+        },
+        { label: "Une image et un conteneur designent exactement la meme chose", isCorrect: false },
+        { label: "Un conteneur sert a construire une image", isCorrect: false },
+      ],
+    },
+  ],
+  podman: [
+    {
+      prompt: "Quel est l'avantage principal de Podman par rapport a Docker ?",
+      choices: [
+        { label: "Il n'a pas besoin d'un demon tournant en permanence avec les droits root", isCorrect: true },
+        { label: "Il ne peut executer que des images Windows", isCorrect: false },
+        { label: "Il remplace completement le langage YAML", isCorrect: false },
+      ],
+    },
+    {
+      prompt: "Que signifie executer un conteneur en mode rootless ?",
+      choices: [
+        { label: "Le conteneur tourne sans privileges administrateur sur la machine hote", isCorrect: true },
+        { label: "Le conteneur n'a pas de systeme de fichiers", isCorrect: false },
+        { label: "Le conteneur ne peut pas acceder au reseau", isCorrect: false },
+      ],
+    },
+  ],
+  ci: [
+    {
+      prompt: "Que verifie typiquement un pipeline d'integration continue ?",
+      choices: [
+        { label: "Le lint, le typecheck, les tests et le build a chaque changement", isCorrect: true },
+        { label: "Uniquement la taille du depot Git", isCorrect: false },
+        { label: "Le nombre de contributeurs du projet", isCorrect: false },
+      ],
+    },
+    {
+      prompt: "Dans GitHub Actions, que decrit un fichier YAML de workflow ?",
+      choices: [
+        { label: "Quand et comment le pipeline se declenche et s'execute", isCorrect: true },
+        { label: "Les droits d'acces des utilisateurs a la base de donnees", isCorrect: false },
+        { label: "Le contenu de la page d'accueil du site", isCorrect: false },
+      ],
+    },
+  ],
+  cd: [
+    {
+      prompt: "Quelle est la difference entre livraison continue et deploiement continu ?",
+      choices: [
+        {
+          label: "Le deploiement continu met en production automatiquement, la livraison continue garde une validation manuelle",
+          isCorrect: true,
+        },
+        { label: "Ce sont deux noms pour exactement la meme pratique", isCorrect: false },
+        { label: "La livraison continue concerne uniquement la base de donnees", isCorrect: false },
+      ],
+    },
+    {
+      prompt: "A quoi sert un rollback ?",
+      choices: [
+        { label: "A revenir rapidement a la version precedente si un deploiement pose probleme", isCorrect: true },
+        { label: "A supprimer definitivement une branche Git", isCorrect: false },
+        { label: "A augmenter automatiquement le nombre de serveurs", isCorrect: false },
+      ],
+    },
+  ],
+  iac: [
+    {
+      prompt: "Qu'est-ce qu'une approche declarative en Infrastructure as Code ?",
+      choices: [
+        { label: "On decrit l'etat souhaite, et l'outil se charge de l'atteindre", isCorrect: true },
+        { label: "On ecrit la liste exacte des commandes a executer dans l'ordre", isCorrect: false },
+        { label: "On configure l'infrastructure uniquement via une interface graphique", isCorrect: false },
+      ],
+    },
+    {
+      prompt: "A quoi sert la commande terraform plan ?",
+      choices: [
+        { label: "A afficher les changements prevus avant de les appliquer", isCorrect: true },
+        { label: "A supprimer toute l'infrastructure immediatement", isCorrect: false },
+        { label: "A installer Terraform sur la machine", isCorrect: false },
+      ],
+    },
+  ],
+  ansible: [
+    {
+      prompt: "Que decrit un playbook Ansible ?",
+      choices: [
+        { label: "Une liste de taches a appliquer sur un ou plusieurs serveurs", isCorrect: true },
+        { label: "La liste des utilisateurs autorises a se connecter en SSH", isCorrect: false },
+        { label: "Le code source d'une application", isCorrect: false },
+      ],
+    },
+    {
+      prompt: "Que garantit l'idempotence d'un playbook ?",
+      choices: [
+        { label: "Le relancer plusieurs fois produit le meme resultat sans rien casser", isCorrect: true },
+        { label: "Il s'execute deux fois plus vite a chaque lancement", isCorrect: false },
+        { label: "Il ne peut etre lance qu'une seule fois", isCorrect: false },
+      ],
+    },
+  ],
+  monitoring: [
+    {
+      prompt: "Quelle est la difference entre une metrique et un log ?",
+      choices: [
+        {
+          label: "Une metrique est une valeur numerique suivie dans le temps, un log est une trace textuelle detaillee",
+          isCorrect: true,
+        },
+        { label: "Une metrique et un log designent exactement la meme chose", isCorrect: false },
+        { label: "Un log ne peut contenir que des erreurs", isCorrect: false },
+      ],
+    },
+    {
+      prompt: "A quoi sert une alerte de supervision ?",
+      choices: [
+        {
+          label: "A prevenir automatiquement une equipe quand une metrique depasse un seuil anormal",
+          isCorrect: true,
+        },
+        { label: "A ameliorer automatiquement les performances du serveur", isCorrect: false },
+        { label: "A remplacer les tests automatises", isCorrect: false },
+      ],
+    },
+  ],
+  securiteWeb: [
+    {
+      prompt: "Qu'est-ce qu'une injection SQL ?",
+      choices: [
+        {
+          label: "Une entree utilisateur non verifiee executee comme une requete, permettant de manipuler la base",
+          isCorrect: true,
+        },
+        { label: "Un type de panne reseau", isCorrect: false },
+        { label: "Une technique pour accelerer les requetes SQL", isCorrect: false },
+      ],
+    },
+    {
+      prompt: "Comment se proteger principalement du XSS ?",
+      choices: [
+        { label: "En echappant systematiquement le contenu utilisateur affiche dans la page", isCorrect: true },
+        { label: "En augmentant la taille du mot de passe", isCorrect: false },
+        { label: "En desactivant le pare-feu", isCorrect: false },
+      ],
+    },
+  ],
+  securiteDevops: [
+    {
+      prompt: "Que recommande le principe du moindre privilege ?",
+      choices: [
+        { label: "Donner uniquement les droits strictement necessaires a chaque tache", isCorrect: true },
+        { label: "Donner tous les droits a tout le monde pour simplifier", isCorrect: false },
+        { label: "Supprimer tous les comptes administrateur", isCorrect: false },
+      ],
+    },
+    {
+      prompt: "Quelle est la bonne pratique pour stocker un secret (mot de passe, cle API) ?",
+      choices: [
+        { label: "Dans un systeme de gestion des secrets dedie, jamais en clair dans Git", isCorrect: true },
+        { label: "Directement en clair dans le fichier de code versionne", isCorrect: false },
+        { label: "Dans un commentaire du code pour s'en souvenir facilement", isCorrect: false },
+      ],
+    },
+  ],
+};
+
+/**
+ * Les 3 ressources d'un module (article redige, video existante, check-list originale),
+ * dans cet ordre d'affichage, plus le quiz qui les evalue (issue #83/#84).
+ */
+function moduleResources(key: keyof typeof lessons) {
+  return [
+    { resourceType: "article" as const, title: lessonTitles[key], content: lessons[key], displayOrder: 1 },
+    { resourceType: "video" as const, title: videos[key].title, content: videos[key].url, displayOrder: 2 },
+    { resourceType: "checklist" as const, title: checklists[key].title, content: checklists[key].content, displayOrder: 3 },
+  ];
+}
+
 const modules = [
   {
     displayOrder: 1,
@@ -183,7 +565,8 @@ const modules = [
     shortDescription: "Prendre en main le terminal et les commandes essentielles.",
     learningObjective: "Etre autonome dans un terminal Linux pour les modules suivants.",
     publicationStatus: "published" as const,
-    resources: [{ resourceType: "article" as const, content: lessons.linux, displayOrder: 1 }],
+    resources: moduleResources("linux"),
+    quiz: quizzes.linux,
   },
   {
     displayOrder: 2,
@@ -191,7 +574,8 @@ const modules = [
     shortDescription: "Versionner son code et collaborer avec Git.",
     learningObjective: "Maitriser le cycle branche / commit / pull request.",
     publicationStatus: "published" as const,
-    resources: [{ resourceType: "article" as const, content: lessons.git, displayOrder: 1 }],
+    resources: moduleResources("git"),
+    quiz: quizzes.git,
   },
   {
     displayOrder: 3,
@@ -199,7 +583,8 @@ const modules = [
     shortDescription: "Comprendre la conteneurisation et Docker.",
     learningObjective: "Construire et executer une image Docker simple.",
     publicationStatus: "published" as const,
-    resources: [{ resourceType: "article" as const, content: lessons.docker, displayOrder: 1 }],
+    resources: moduleResources("docker"),
+    quiz: quizzes.docker,
   },
   {
     displayOrder: 4,
@@ -207,7 +592,8 @@ const modules = [
     shortDescription: "Decouvrir Podman et la conteneurisation sans daemon.",
     learningObjective: "Construire et executer un conteneur avec Podman.",
     publicationStatus: "published" as const,
-    resources: [{ resourceType: "article" as const, content: lessons.podman, displayOrder: 1 }],
+    resources: moduleResources("podman"),
+    quiz: quizzes.podman,
   },
   {
     displayOrder: 5,
@@ -215,7 +601,8 @@ const modules = [
     shortDescription: "Automatiser les verifications a chaque changement de code.",
     learningObjective: "Mettre en place un pipeline CI avec GitHub Actions.",
     publicationStatus: "published" as const,
-    resources: [{ resourceType: "article" as const, content: lessons.ci, displayOrder: 1 }],
+    resources: moduleResources("ci"),
+    quiz: quizzes.ci,
   },
   {
     displayOrder: 6,
@@ -223,7 +610,8 @@ const modules = [
     shortDescription: "Automatiser la livraison d'une application.",
     learningObjective: "Comprendre les strategies de deploiement continu.",
     publicationStatus: "published" as const,
-    resources: [{ resourceType: "article" as const, content: lessons.cd, displayOrder: 1 }],
+    resources: moduleResources("cd"),
+    quiz: quizzes.cd,
   },
   {
     displayOrder: 7,
@@ -231,7 +619,8 @@ const modules = [
     shortDescription: "Decrire son infrastructure dans du code versionne.",
     learningObjective: "Comprendre les principes de l'Infrastructure as Code.",
     publicationStatus: "draft" as const,
-    resources: [{ resourceType: "article" as const, content: lessons.iac, displayOrder: 1 }],
+    resources: moduleResources("iac"),
+    quiz: quizzes.iac,
   },
   {
     displayOrder: 8,
@@ -239,7 +628,8 @@ const modules = [
     shortDescription: "Automatiser la configuration de serveurs avec Ansible.",
     learningObjective: "Ecrire un playbook Ansible pour configurer un serveur cible.",
     publicationStatus: "published" as const,
-    resources: [{ resourceType: "article" as const, content: lessons.ansible, displayOrder: 1 }],
+    resources: moduleResources("ansible"),
+    quiz: quizzes.ansible,
   },
   {
     displayOrder: 9,
@@ -247,7 +637,8 @@ const modules = [
     shortDescription: "Savoir si une application fonctionne correctement.",
     learningObjective: "Mettre en place des indicateurs de suivi basiques.",
     publicationStatus: "published" as const,
-    resources: [{ resourceType: "article" as const, content: lessons.monitoring, displayOrder: 1 }],
+    resources: moduleResources("monitoring"),
+    quiz: quizzes.monitoring,
   },
   {
     displayOrder: 10,
@@ -255,7 +646,8 @@ const modules = [
     shortDescription: "Connaitre les vulnerabilites web courantes et comment s'en proteger.",
     learningObjective: "Identifier les risques OWASP Top 10 et appliquer les bonnes pratiques de base.",
     publicationStatus: "published" as const,
-    resources: [{ resourceType: "article" as const, content: lessons.securiteWeb, displayOrder: 1 }],
+    resources: moduleResources("securiteWeb"),
+    quiz: quizzes.securiteWeb,
   },
   {
     displayOrder: 11,
@@ -263,7 +655,8 @@ const modules = [
     shortDescription: "Appliquer les reflexes de securite applicative de base.",
     learningObjective: "Identifier et corriger les vulnerabilites courantes.",
     publicationStatus: "hidden" as const,
-    resources: [{ resourceType: "article" as const, content: lessons.securiteDevops, displayOrder: 1 }],
+    resources: moduleResources("securiteDevops"),
+    quiz: quizzes.securiteDevops,
   },
 ];
 
@@ -271,13 +664,48 @@ const modules = [
  * Une ressource peut desormais etre partagee par plusieurs modules (table de jointure
  * module_resources), donc on l'upsert par contenu (pas de create imbrique via Module).
  */
-async function upsertResourceByContent(resourceType: (typeof modules)[number]["resources"][number]["resourceType"], content: string) {
+async function upsertResourceByContent(
+  resourceType: (typeof modules)[number]["resources"][number]["resourceType"],
+  title: string,
+  content: string,
+) {
   const existing = await prisma.resource.findFirst({ where: { content } });
   if (existing) {
-    return existing;
+    return prisma.resource.update({ where: { id: existing.id }, data: { title, resourceType } });
   }
 
-  return prisma.resource.create({ data: { resourceType, content } });
+  return prisma.resource.create({ data: { resourceType, title, content } });
+}
+
+/**
+ * Recree le quiz d'un module a chaque execution (questions/choix repartis du contenu
+ * ci-dessus), pour rester simple et idempotent plutot que de diffuser les changements.
+ */
+async function upsertQuiz(moduleId: string, questions: QuizQuestionSeed[]) {
+  const quiz = await prisma.quiz.upsert({
+    where: { moduleId },
+    update: {},
+    create: { moduleId },
+  });
+
+  await prisma.question.deleteMany({ where: { quizId: quiz.id } });
+
+  for (const [questionIndex, question] of questions.entries()) {
+    await prisma.question.create({
+      data: {
+        quizId: quiz.id,
+        prompt: question.prompt,
+        displayOrder: questionIndex + 1,
+        choices: {
+          create: question.choices.map((choice, choiceIndex) => ({
+            label: choice.label,
+            isCorrect: choice.isCorrect,
+            displayOrder: choiceIndex + 1,
+          })),
+        },
+      },
+    });
+  }
 }
 
 async function main() {
@@ -304,7 +732,7 @@ async function main() {
     await prisma.module.update({ where: { id: existing.id }, data: { displayOrder: -(index + 1) } });
   }
 
-  for (const { resources, ...module } of modules) {
+  for (const { resources, quiz, ...module } of modules) {
     const createdModule = await prisma.module.upsert({
       where: { title: module.title },
       update: module,
@@ -316,13 +744,15 @@ async function main() {
     // plutot que d'accumuler d'anciennes ressources (ex. placeholders example.org).
     await prisma.moduleResource.deleteMany({ where: { moduleId: createdModule.id } });
 
-    for (const { resourceType, content, displayOrder } of resources) {
-      const resource = await upsertResourceByContent(resourceType, content);
+    for (const { resourceType, title, content, displayOrder } of resources) {
+      const resource = await upsertResourceByContent(resourceType, title, content);
 
       await prisma.moduleResource.create({
         data: { moduleId: createdModule.id, resourceId: resource.id, displayOrder },
       });
     }
+
+    await upsertQuiz(createdModule.id, quiz);
   }
 
   // Supprime les ressources qui ne sont plus rattachees a aucun module (anciens placeholders).

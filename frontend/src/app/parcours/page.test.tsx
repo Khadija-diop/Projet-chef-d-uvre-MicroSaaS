@@ -7,8 +7,8 @@ import { getCurrentUser, listModules } from "@/lib/api";
 import ParcoursPage from "./page";
 
 vi.mock("next/link", () => ({
-  default: ({ href, children }: { href: string; children: ReactNode }) =>
-    createElement("a", { href }, children),
+  default: ({ href, children, ...rest }: { href: string; children: ReactNode }) =>
+    createElement("a", { href, ...rest }, children),
 }));
 
 vi.mock("@/lib/api", () => ({
@@ -48,9 +48,8 @@ describe("Page liste des modules", () => {
 
     expect(await screen.findByText("Git essentiel")).toBeInTheDocument();
     expect(screen.getByText("CI/CD")).toBeInTheDocument();
-    const links = screen.getAllByRole("link", { name: "Voir le detail" });
-    expect(links[0]).toHaveAttribute("href", "/parcours/module-1");
-    expect(links[1]).toHaveAttribute("href", "/parcours/module-2");
+    expect(screen.getByRole("link", { name: "Git essentiel" })).toHaveAttribute("href", "/parcours/module-1");
+    expect(screen.getByRole("link", { name: "CI/CD" })).toHaveAttribute("href", "/parcours/module-2");
   });
 
   it("affiche un message quand aucun module n'est publie", async () => {
@@ -61,8 +60,16 @@ describe("Page liste des modules", () => {
     expect(await screen.findByText("Aucun module n'est publie pour le moment.")).toBeInTheDocument();
   });
 
-  it("affiche un message d'erreur quand l'appel API echoue", async () => {
+  it("affiche le message d'erreur renvoye par l'API", async () => {
     listModulesMock.mockRejectedValue(new Error("Impossible de joindre le serveur"));
+
+    render(<ParcoursPage />);
+
+    expect(await screen.findByText("Impossible de joindre le serveur")).toBeInTheDocument();
+  });
+
+  it("affiche un message generique quand l'erreur n'a pas de message", async () => {
+    listModulesMock.mockRejectedValue(new Error());
 
     render(<ParcoursPage />);
 
