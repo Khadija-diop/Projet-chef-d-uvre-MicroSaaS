@@ -18,3 +18,12 @@ export function findPublishedModuleById(id: string) {
     },
   });
 }
+
+export async function publishedModuleExists(id: string) {
+  const module = await prisma.module.findFirst({
+    where: { id, publicationStatus: "published" },
+    select: { id: true },
+  });
+
+  return module !== null;
+}
