@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { getProgress, listModules, type ModuleSummary, type ProgressStatus } from "@/lib/api";
+import { getProgress, listModules, type ProgressStatus } from "@/lib/api";
+import { useAsyncData } from "@/lib/use-async-data";
 
 import { AppShell } from "./app-shell";
 import { ChevronIcon } from "./icons";
@@ -11,20 +12,16 @@ import styles from "./parcours.module.css";
 import { StatusBadge } from "./status-badge";
 
 export default function ParcoursPage() {
-  const [modules, setModules] = useState<ModuleSummary[] | undefined>(undefined);
+  const { data: modules, error } = useAsyncData(
+    listModules,
+    [],
+    "Impossible de charger le parcours pour le moment.",
+  );
   const [statusByModuleId, setStatusByModuleId] = useState<Record<string, ProgressStatus>>({});
   const [percentage, setPercentage] = useState(0);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    async function loadModules() {
-      try {
-        setModules(await listModules());
-      } catch {
-        setError("Impossible de charger le parcours pour le moment.");
-        return;
-      }
-
+    async function loadProgress() {
       try {
         const overview = await getProgress();
         setPercentage(overview.percentage);
@@ -35,13 +32,15 @@ export default function ParcoursPage() {
         // La progression n'a pas pu être chargée : les modules restent affichés en "à faire".
       }
     }
-    loadModules();
+    loadProgress();
   }, []);
 
   return (
     <AppShell active="modules">
       <h1 className={styles.pageTitle}>Vos modules</h1>
-      <p className={styles.pageLede}>Le parcours est ordonné : suis-le dans l&apos;ordre pour progresser efficacement.</p>
+      <p className={styles.pageLede}>
+        Le parcours est ordonné : suis-le dans l&apos;ordre pour progresser efficacement.
+      </p>
 
       {!error && modules && modules.length > 0 && (
         <div className={styles.progressSummary}>

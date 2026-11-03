@@ -84,8 +84,16 @@ describe("Page liste des modules", () => {
     expect(await screen.findByText("Aucun module n'est publie pour le moment.")).toBeInTheDocument();
   });
 
-  it("affiche un message d'erreur quand l'appel API echoue", async () => {
+  it("affiche le message d'erreur renvoye par l'API", async () => {
     listModulesMock.mockRejectedValue(new Error("Impossible de joindre le serveur"));
+
+    render(<ParcoursPage />);
+
+    expect(await screen.findByText("Impossible de joindre le serveur")).toBeInTheDocument();
+  });
+
+  it("affiche un message generique quand l'erreur n'a pas de message", async () => {
+    listModulesMock.mockRejectedValue(new Error());
 
     render(<ParcoursPage />);
 

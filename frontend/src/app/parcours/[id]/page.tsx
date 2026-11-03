@@ -7,19 +7,12 @@ import { useEffect, useState } from "react";
 import { getModule, getProgress, setModuleProgress, type ModuleDetail, type ProgressStatus } from "@/lib/api";
 
 import { AppShell } from "../app-shell";
-import { ArticleIcon, BackIcon, CheckIcon, ChecklistIcon, LinkTypeIcon, VideoIcon } from "../icons";
+import { BackLink } from "../back-link";
+import { CheckIcon } from "../icons";
+import { ResourceIcon } from "../resource-icon";
+import { RESOURCE_TYPE_LABELS } from "../resource-meta";
 import styles from "../parcours.module.css";
 import { StatusBadge } from "../status-badge";
-
-const RESOURCE_TYPE_META: Record<
-  ModuleDetail["resources"][number]["resourceType"],
-  { icon: typeof ArticleIcon; label: string }
-> = {
-  article: { icon: ArticleIcon, label: "Article" },
-  video: { icon: VideoIcon, label: "Vidéo" },
-  link: { icon: LinkTypeIcon, label: "Lien" },
-  checklist: { icon: ChecklistIcon, label: "Checklist" },
-};
 
 export default function ModuleDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -46,7 +39,7 @@ export default function ModuleDetailPage() {
         const overview = await getProgress();
         setStatus(overview.modules.find((module) => module.id === id)?.status ?? "todo");
       } catch {
-        // La progression n'a pas pu etre chargee : le module reste affiche, statut par defaut "todo".
+        // La progression n'a pas pu être chargée : le module reste affiché, statut par défaut "todo".
       }
     }
     loadModule();
@@ -71,10 +64,7 @@ export default function ModuleDetailPage() {
 
   return (
     <AppShell active="modules">
-      <Link href="/parcours" className={styles.detailBack}>
-        <BackIcon className={styles.icon} />
-        Retour à la liste
-      </Link>
+      <BackLink href="/parcours" label="Retour au parcours" />
 
       {error && <p className={styles.error}>{error}</p>}
 
@@ -84,7 +74,7 @@ export default function ModuleDetailPage() {
         <>
           <div className={styles.detailHead}>
             <div>
-              <h1 className={styles.pageTitle}>{moduleDetail.title}</h1>
+              <h1 className={styles.title}>{moduleDetail.title}</h1>
               <p className={styles.description}>{moduleDetail.shortDescription}</p>
             </div>
             <StatusBadge status={status} />
@@ -92,33 +82,53 @@ export default function ModuleDetailPage() {
 
           <div className={styles.objective}>
             <span className={styles.objectiveLabel}>Objectif pédagogique</span>
-            <p className={styles.objectiveText}>{moduleDetail.learningObjective}</p>
+            <p>{moduleDetail.learningObjective}</p>
           </div>
 
           <section className={styles.resources}>
-            <h2>Ressources associées</h2>
-            {moduleDetail.resources.length === 0 ? (
-              <p className={styles.empty}>Aucune ressource n&apos;est associée à ce module.</p>
-            ) : (
-              <ul className={styles.resourceList}>
-                {moduleDetail.resources.map((resource) => {
-                  const { icon: ResourceIcon, label } = RESOURCE_TYPE_META[resource.resourceType];
-                  return (
-                    <li key={resource.id} className={styles.resource}>
-                      <ResourceIcon className={styles.resourceIcon} />
-                      {resource.resourceType === "checklist" ? (
-                        <span>{resource.content}</span>
-                      ) : (
-                        <a href={resource.content} target="_blank" rel="noreferrer noopener">
-                          {resource.content}
-                        </a>
-                      )}
-                      <span className={styles.resourceType}>{label}</span>
-                    </li>
-                  );
-                })}
-              </ul>
+            <h2>Ressources associees</h2>
+            {moduleDetail.resources.length === 0 && (
+              <p className={styles.empty}>Aucune ressource n&apos;est associee a ce module.</p>
             )}
+            <ul className={styles.resourceList}>
+              {moduleDetail.resources.map((resource) => (
+                <li key={resource.id}>
+                  <Link
+                    href={`/parcours/${moduleDetail.id}/ressources/${resource.id}`}
+                    className={styles.resourceRow}
+                  >
+                    <ResourceIcon type={resource.resourceType} />
+                    <span className={styles.resourceRowBody}>{resource.title}</span>
+                    <span className={styles.resourceType}>
+                      {RESOURCE_TYPE_LABELS[resource.resourceType]}
+                    </span>
+                    <svg className={styles.moduleRowChevron} viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M9 6l6 6-6 6" />
+                    </svg>
+                  </Link>
+                </li>
+              ))}
+              <li>
+                <Link href={`/parcours/${moduleDetail.id}/quiz`} className={styles.resourceRow}>
+                  <ResourceIcon type="quiz" />
+                  <span className={styles.resourceRowBody}>Quiz</span>
+                  <span className={styles.resourceType}>Evaluation</span>
+                  <svg className={styles.moduleRowChevron} viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M9 6l6 6-6 6" />
+                  </svg>
+                </Link>
+              </li>
+              <li>
+                <Link href={`/parcours/${moduleDetail.id}/exercice`} className={styles.resourceRow}>
+                  <ResourceIcon type="exercise" />
+                  <span className={styles.resourceRowBody}>Exercice</span>
+                  <span className={styles.resourceType}>Pratique</span>
+                  <svg className={styles.moduleRowChevron} viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M9 6l6 6-6 6" />
+                  </svg>
+                </Link>
+              </li>
+            </ul>
           </section>
 
           <div className={styles.detailActions}>
