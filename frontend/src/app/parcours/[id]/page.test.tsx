@@ -35,7 +35,7 @@ beforeEach(() => {
 });
 
 describe("Page detail d'un module", () => {
-  it("affiche le module et ses ressources triees", async () => {
+  it("affiche le module et ses ressources comme une liste de liens, triee", async () => {
     getModuleMock.mockResolvedValue({
       id: "module-1",
       title: "Git essentiel",
@@ -43,8 +43,20 @@ describe("Page detail d'un module", () => {
       learningObjective: "Savoir versionner son code",
       displayOrder: 1,
       resources: [
-        { id: "resource-1", content: "https://git-scm.com/doc", resourceType: "link", displayOrder: 1 },
-        { id: "resource-2", content: "Checklist Git", resourceType: "checklist", displayOrder: 2 },
+        {
+          id: "resource-1",
+          title: "Le workflow Git essentiel",
+          content: "## Les concepts cles\n- Commit : un instantane.",
+          resourceType: "article",
+          displayOrder: 1,
+        },
+        {
+          id: "resource-2",
+          title: "Documentation officielle Git",
+          content: "https://git-scm.com/doc",
+          resourceType: "link",
+          displayOrder: 2,
+        },
       ],
     });
 
@@ -52,14 +64,15 @@ describe("Page detail d'un module", () => {
 
     expect(await screen.findByText("Git essentiel")).toBeInTheDocument();
     expect(screen.getByText("Savoir versionner son code")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "https://git-scm.com/doc" })).toHaveAttribute(
-      "href",
-      "https://git-scm.com/doc",
-    );
-    expect(screen.getByText("Checklist Git")).toBeInTheDocument();
+
+    const articleLink = screen.getByRole("link", { name: /Le workflow Git essentiel/ });
+    expect(articleLink).toHaveAttribute("href", "/parcours/module-1/ressources/resource-1");
+
+    const linkLink = screen.getByRole("link", { name: /Documentation officielle Git/ });
+    expect(linkLink).toHaveAttribute("href", "/parcours/module-1/ressources/resource-2");
   });
 
-  it("affiche un message quand le module n'a pas de ressource", async () => {
+  it("affiche toujours des lignes Quiz et Exercice menant vers leurs pages", async () => {
     getModuleMock.mockResolvedValue({
       id: "module-1",
       title: "Git essentiel",
@@ -71,9 +84,13 @@ describe("Page detail d'un module", () => {
 
     render(<ModuleDetailPage />);
 
-    expect(
-      await screen.findByText("Aucune ressource n'est associée à ce module."),
-    ).toBeInTheDocument();
+    const quizLink = await screen.findByRole("link", { name: /Quiz/ });
+    expect(quizLink).toHaveAttribute("href", "/parcours/module-1/quiz");
+
+    const exerciseLink = screen.getByRole("link", { name: /Exercice/ });
+    expect(exerciseLink).toHaveAttribute("href", "/parcours/module-1/exercice");
+
+    expect(screen.getByText("Aucune ressource n'est associee a ce module.")).toBeInTheDocument();
   });
 
   it("affiche un message d'erreur quand le module est introuvable", async () => {

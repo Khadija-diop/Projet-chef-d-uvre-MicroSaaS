@@ -27,6 +27,7 @@ export async function getPublishedModuleById(id: string) {
     displayOrder: module.displayOrder,
     resources: module.resources.map(({ resource, displayOrder }) => ({
       id: resource.id,
+      title: resource.title,
       content: resource.content,
       resourceType: resource.resourceType,
       displayOrder,
