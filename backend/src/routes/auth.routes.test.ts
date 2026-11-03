@@ -111,6 +111,23 @@ describe("GET /api/auth/me", () => {
     expect(response.status).toBe(200);
     expect(response.body).toEqual({ id: "user-1", email: "learner@example.com", role: "learner" });
   });
+
+  it("renvoie null (200) quand la session pointe vers un utilisateur supprime", async () => {
+    const passwordHash = await argon2.hash("password123");
+    mockedRepo.findUserByEmail.mockResolvedValue(fakeUser({ passwordHash }));
+
+    const agent = request.agent(app);
+    await agent
+      .post("/api/auth/login")
+      .send({ email: "learner@example.com", password: "password123" });
+
+    mockedRepo.findUserById.mockResolvedValue(null);
+
+    const response = await agent.get("/api/auth/me");
+
+    expect(response.status).toBe(200);
+    expect(response.body).toBeNull();
+  });
 });
 
 describe("POST /api/auth/logout", () => {

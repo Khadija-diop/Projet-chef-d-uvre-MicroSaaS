@@ -5,7 +5,9 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { getModule, getProgress, setModuleProgress, type ModuleDetail, type ProgressStatus } from "@/lib/api";
+import { announce } from "@/lib/announce";
 
+import { FocusHeading } from "../../focus-heading";
 import { AppShell } from "../app-shell";
 import { BackLink } from "../back-link";
 import { CheckIcon } from "../icons";
@@ -51,6 +53,9 @@ export default function ModuleDetailPage() {
     try {
       const progress = await setModuleProgress(id, status === "done" ? "todo" : "done");
       setStatus(progress.status);
+      announce(
+        progress.status === "done" ? "Module marqué comme terminé. Progression mise à jour." : "Module remis à faire. Progression mise à jour.",
+      );
     } catch (caughtError) {
       setProgressError(
         caughtError instanceof Error && caughtError.message
@@ -74,7 +79,8 @@ export default function ModuleDetailPage() {
         <>
           <div className={styles.detailHead}>
             <div>
-              <h1 className={styles.title}>{moduleDetail.title}</h1>
+              <h1 className={styles.pageTitle}>{moduleDetail.title}</h1>
+              <FocusHeading />
               <p className={styles.description}>{moduleDetail.shortDescription}</p>
             </div>
             <StatusBadge status={status} />

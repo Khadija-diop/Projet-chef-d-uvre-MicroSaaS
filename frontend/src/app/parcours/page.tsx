@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { getProgress, listModules, type ProgressStatus } from "@/lib/api";
 import { useAsyncData } from "@/lib/use-async-data";
 
+import { FocusHeading } from "../focus-heading";
 import { AppShell } from "./app-shell";
 import { ChevronIcon } from "./icons";
 import styles from "./parcours.module.css";
@@ -38,9 +39,8 @@ export default function ParcoursPage() {
   return (
     <AppShell active="modules">
       <h1 className={styles.pageTitle}>Vos modules</h1>
-      <p className={styles.pageLede}>
-        Le parcours est ordonné : suis-le dans l&apos;ordre pour progresser efficacement.
-      </p>
+      <FocusHeading />
+      <p className={styles.pageLede}>Le parcours est ordonné : suis-le dans l&apos;ordre pour progresser efficacement.</p>
 
       {!error && modules && modules.length > 0 && (
         <div className={styles.progressSummary}>

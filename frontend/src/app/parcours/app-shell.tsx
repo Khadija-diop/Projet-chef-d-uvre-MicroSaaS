@@ -58,7 +58,9 @@ export function AppShell({ active, children }: AppShellProps) {
         </div>
       </aside>
 
-      <div className={styles.shellContent}>{children}</div>
+      <main id="main-content" className={styles.shellContent}>
+        {children}
+      </main>
     </div>
   );
 }

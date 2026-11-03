@@ -7,6 +7,7 @@ import { useState } from "react";
 import { register } from "@/lib/api";
 
 import { AuthTabs } from "../auth-tabs";
+import { FocusHeading } from "../focus-heading";
 import styles from "../auth.module.css";
 
 export default function InscriptionPage() {
@@ -33,11 +34,12 @@ export default function InscriptionPage() {
   }
 
   return (
-    <main className={styles.page}>
+    <main id="main-content" className={styles.page}>
       <div className={styles.card}>
         <AuthTabs active="inscription" />
 
         <h1 className={styles.title}>Créer un compte</h1>
+        <FocusHeading />
         <p className={styles.subtitle}>Rejoins le parcours et démarre ta progression.</p>
 
         <form className={styles.form} onSubmit={handleSubmit}>

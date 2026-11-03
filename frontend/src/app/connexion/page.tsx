@@ -7,6 +7,7 @@ import { useState } from "react";
 import { login } from "@/lib/api";
 
 import { AuthTabs } from "../auth-tabs";
+import { FocusHeading } from "../focus-heading";
 import styles from "../auth.module.css";
 
 export default function ConnexionPage() {
@@ -33,11 +34,12 @@ export default function ConnexionPage() {
   }
 
   return (
-    <main className={styles.page}>
+    <main id="main-content" className={styles.page}>
       <div className={styles.card}>
         <AuthTabs active="connexion" />
 
         <h1 className={styles.title}>Se connecter</h1>
+        <FocusHeading />
         <p className={styles.subtitle}>Accède à ton parcours et à ta progression.</p>
 
         <form className={styles.form} onSubmit={handleSubmit}>
