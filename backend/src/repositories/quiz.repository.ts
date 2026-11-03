@@ -17,3 +17,10 @@ export function createQuizAttempt(userId: string, quizId: string, score: number,
     data: { userId, quizId, score, totalCount },
   });
 }
+
+export function findQuizAttemptsByUserId(userId: string) {
+  return prisma.quizAttempt.findMany({
+    where: { userId },
+    select: { quiz: { select: { moduleId: true } } },
+  });
+}

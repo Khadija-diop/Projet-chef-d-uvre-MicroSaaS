@@ -19,3 +19,10 @@ export function upsertExerciseCompletion(userId: string, exerciseId: string, sub
     create: { userId, exerciseId, submittedAnswer },
   });
 }
+
+export function findExerciseCompletionsByUserId(userId: string) {
+  return prisma.exerciseCompletion.findMany({
+    where: { userId },
+    select: { exercise: { select: { moduleId: true } } },
+  });
+}

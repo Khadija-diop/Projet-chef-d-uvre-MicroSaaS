@@ -3,17 +3,23 @@ import argon2 from "argon2";
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import * as exerciseRepository from "../repositories/exercise.repository.js";
 import * as moduleRepository from "../repositories/module.repository.js";
 import * as progressRepository from "../repositories/progress.repository.js";
+import * as quizRepository from "../repositories/quiz.repository.js";
 import * as userRepository from "../repositories/user.repository.js";
 import { app } from "../app.js";
 
+vi.mock("../repositories/exercise.repository.js");
 vi.mock("../repositories/module.repository.js");
 vi.mock("../repositories/progress.repository.js");
+vi.mock("../repositories/quiz.repository.js");
 vi.mock("../repositories/user.repository.js");
 
+const mockedExerciseRepo = vi.mocked(exerciseRepository);
 const mockedModuleRepo = vi.mocked(moduleRepository);
 const mockedProgressRepo = vi.mocked(progressRepository);
+const mockedQuizRepo = vi.mocked(quizRepository);
 const mockedUserRepo = vi.mocked(userRepository);
 
 type UserWithRole = Prisma.UserGetPayload<{ include: { role: true } }>;
@@ -58,6 +64,8 @@ async function loginAgent() {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  mockedQuizRepo.findQuizAttemptsByUserId.mockResolvedValue([]);
+  mockedExerciseRepo.findExerciseCompletionsByUserId.mockResolvedValue([]);
 });
 
 describe("POST /api/progress/:moduleId", () => {
@@ -185,6 +193,40 @@ describe("GET /api/progress", () => {
       modules: [
         { id: "module-1", title: "Linux", displayOrder: 1, status: "done" },
         { id: "module-2", title: "Git", displayOrder: 2, status: "in_progress" },
+        { id: "module-3", title: "Docker", displayOrder: 3, status: "todo" },
+      ],
+    });
+  });
+
+  it("considere done un module dont le quiz et l'exercice sont completes, meme sans statut manuel", async () => {
+    mockedModuleRepo.findPublishedModules.mockResolvedValue([
+      fakeModule({ id: "module-1", displayOrder: 1, title: "Linux" }),
+      fakeModule({ id: "module-2", displayOrder: 2, title: "Git" }),
+      fakeModule({ id: "module-3", displayOrder: 3, title: "Docker" }),
+    ]);
+    mockedProgressRepo.findProgressByUserId.mockResolvedValue([
+      { userId: "user-1", moduleId: "module-2", status: "todo", updatedAt: new Date() },
+    ]);
+    mockedQuizRepo.findQuizAttemptsByUserId.mockResolvedValue([
+      { quiz: { moduleId: "module-1" } },
+      { quiz: { moduleId: "module-2" } },
+    ]);
+    mockedExerciseRepo.findExerciseCompletionsByUserId.mockResolvedValue([
+      { exercise: { moduleId: "module-1" } },
+    ]);
+    const agent = await loginAgent();
+
+    const response = await agent.get("/api/progress");
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      totalCount: 3,
+      doneCount: 1,
+      remainingCount: 2,
+      percentage: 33,
+      modules: [
+        { id: "module-1", title: "Linux", displayOrder: 1, status: "done" },
+        { id: "module-2", title: "Git", displayOrder: 2, status: "todo" },
         { id: "module-3", title: "Docker", displayOrder: 3, status: "todo" },
       ],
     });
