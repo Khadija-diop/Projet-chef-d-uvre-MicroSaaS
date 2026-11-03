@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { FocusHeading } from "./focus-heading";
 import styles from "./page.module.css";
 import { UserMenu } from "./user-menu";
 
@@ -35,12 +36,13 @@ export default function Home() {
         </nav>
       </header>
 
-      <main className={styles.main}>
+      <main id="main-content" className={styles.main}>
         <section className={styles.hero}>
           <p className={styles.eyebrow}>Site-lab pedagogique · DevOps</p>
           <h1 className={styles.title}>
             Apprendre le DevOps par la pratique
           </h1>
+          <FocusHeading />
           <p className={styles.subtitle}>
             Un parcours guide pour apprenant·es debutant·es : suis des modules
             structures, enregistre ta progression et decouvre les etapes d&apos;un

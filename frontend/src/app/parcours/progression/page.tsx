@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { getProgress, type ProgressOverview } from "@/lib/api";
 
+import { FocusHeading } from "../../focus-heading";
 import { AppShell } from "../app-shell";
 import { ChevronIcon } from "../icons";
 import styles from "../parcours.module.css";
@@ -35,6 +36,7 @@ export default function ProgressionPage() {
   return (
     <AppShell active="progress">
       <h1 className={styles.pageTitle}>Votre progression</h1>
+      <FocusHeading />
       <p className={styles.pageLede}>Vue d&apos;ensemble de votre avancement sur le parcours.</p>
 
       {error && <p className={styles.error}>{error}</p>}

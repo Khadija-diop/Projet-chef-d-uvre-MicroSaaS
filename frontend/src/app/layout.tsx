@@ -25,7 +25,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${inter.variable} ${jetbrainsMono.variable}`}
       suppressHydrationWarning
     >
-      <body>{children}</body>
+      <body>
+        <a href="#main-content" className="skip-link">
+          Aller au contenu principal
+        </a>
+        {children}
+      </body>
     </html>
   );
 }

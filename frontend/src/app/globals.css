@@ -115,6 +115,39 @@ a:hover {
   border-radius: 2px;
 }
 
+/* Accessibilite RGAA 4.1 : contenu reserve aux lecteurs d'ecran (region aria-live, etc.) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Accessibilite RGAA 4.1 : lien d'evitement, premier element tabulable de chaque page */
+.skip-link {
+  position: absolute;
+  left: var(--space-3);
+  top: -48px;
+  background: var(--color-primary);
+  color: #ffffff;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-sm);
+  z-index: 100;
+  font-weight: 600;
+  text-decoration: none;
+  transition: top 150ms ease;
+}
+
+.skip-link:focus {
+  top: var(--space-3);
+  text-decoration: none;
+}
+
 button {
   font: inherit;
   cursor: pointer;
