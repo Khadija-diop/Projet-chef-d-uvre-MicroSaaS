@@ -37,6 +37,7 @@ function fakeModuleWithResources(overrides: Partial<ModuleWithResources> = {}): 
         displayOrder: 1,
         resource: {
           id: "resource-1",
+          title: "Documentation officielle Git",
           content: "https://git-scm.com/doc",
           resourceType: "link",
           createdAt: new Date(),
@@ -104,6 +105,7 @@ describe("getPublishedModuleById", () => {
             displayOrder: 2,
             resource: {
               id: "resource-1",
+              title: "Documentation officielle Git",
               content: "https://git-scm.com/doc",
               resourceType: "link",
               createdAt: new Date(),
@@ -124,6 +126,7 @@ describe("getPublishedModuleById", () => {
       resources: [
         {
           id: "resource-1",
+          title: "Documentation officielle Git",
           content: "https://git-scm.com/doc",
           resourceType: "link",
           displayOrder: 2,
