@@ -1,18 +1,26 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AppError } from "../middlewares/errors.js";
+import * as exerciseRepository from "../repositories/exercise.repository.js";
 import * as moduleRepository from "../repositories/module.repository.js";
 import * as progressRepository from "../repositories/progress.repository.js";
+import * as quizRepository from "../repositories/quiz.repository.js";
 import { getProgressOverview, setModuleProgress } from "./progress.service.js";
 
+vi.mock("../repositories/exercise.repository.js");
 vi.mock("../repositories/module.repository.js");
 vi.mock("../repositories/progress.repository.js");
+vi.mock("../repositories/quiz.repository.js");
 
+const mockedExerciseRepo = vi.mocked(exerciseRepository);
 const mockedModuleRepo = vi.mocked(moduleRepository);
 const mockedProgressRepo = vi.mocked(progressRepository);
+const mockedQuizRepo = vi.mocked(quizRepository);
 
 beforeEach(() => {
   vi.clearAllMocks();
+  mockedQuizRepo.findQuizAttemptsByUserId.mockResolvedValue([]);
+  mockedExerciseRepo.findExerciseCompletionsByUserId.mockResolvedValue([]);
 });
 
 describe("setModuleProgress", () => {
@@ -124,5 +132,42 @@ describe("getProgressOverview", () => {
       percentage: 0,
       modules: [],
     });
+  });
+
+  it("considere done un module dont le quiz et l'exercice sont completes, meme sans statut manuel", async () => {
+    mockedModuleRepo.findPublishedModules.mockResolvedValue([
+      {
+        id: "module-1",
+        title: "Linux",
+        shortDescription: "s",
+        learningObjective: "o",
+        displayOrder: 1,
+        publicationStatus: "published",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: "module-2",
+        title: "Git",
+        shortDescription: "s",
+        learningObjective: "o",
+        displayOrder: 2,
+        publicationStatus: "published",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]);
+    mockedProgressRepo.findProgressByUserId.mockResolvedValue([]);
+    mockedQuizRepo.findQuizAttemptsByUserId.mockResolvedValue([{ quiz: { moduleId: "module-1" } }]);
+    mockedExerciseRepo.findExerciseCompletionsByUserId.mockResolvedValue([
+      { exercise: { moduleId: "module-1" } },
+    ]);
+
+    const result = await getProgressOverview("user-1");
+
+    expect(result.modules).toEqual([
+      { id: "module-1", title: "Linux", displayOrder: 1, status: "done" },
+      { id: "module-2", title: "Git", displayOrder: 2, status: "todo" },
+    ]);
   });
 });
