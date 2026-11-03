@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { createElement, type ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { getCurrentUser, getModule } from "@/lib/api";
+import { getModule } from "@/lib/api";
 
 import ResourceDetailPage from "./page";
 
@@ -13,20 +13,18 @@ vi.mock("next/link", () => ({
 
 vi.mock("next/navigation", () => ({
   useParams: () => ({ id: "module-1", resourceId: "resource-1" }),
+  useRouter: () => ({ push: vi.fn() }),
 }));
 
 vi.mock("@/lib/api", () => ({
   getModule: vi.fn(),
-  getCurrentUser: vi.fn(),
   logout: vi.fn(),
 }));
 
 const getModuleMock = vi.mocked(getModule);
-const getCurrentUserMock = vi.mocked(getCurrentUser);
 
 beforeEach(() => {
   vi.clearAllMocks();
-  getCurrentUserMock.mockResolvedValue(null);
 });
 
 describe("Page detail d'une ressource", () => {

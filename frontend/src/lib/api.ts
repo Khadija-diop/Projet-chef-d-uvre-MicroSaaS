@@ -67,6 +67,22 @@ export type Exercise = {
   modelAnswer: string | null;
 };
 
+export type ProgressStatus = "todo" | "in_progress" | "done";
+
+export type ModuleProgress = {
+  moduleId: string;
+  status: ProgressStatus;
+  updatedAt: string;
+};
+
+export type ProgressOverview = {
+  totalCount: number;
+  doneCount: number;
+  remainingCount: number;
+  percentage: number;
+  modules: Array<{ id: string; title: string; displayOrder: number; status: ProgressStatus }>;
+};
+
 export class ApiError extends Error {
   readonly status: number;
 
@@ -151,4 +167,15 @@ export function submitExercise(moduleId: string, answer: string) {
     `/api/modules/${moduleId}/exercise/completions`,
     { method: "POST", body: JSON.stringify({ answer }) },
   );
+}
+
+export function getProgress() {
+  return request<ProgressOverview>("/api/progress");
+}
+
+export function setModuleProgress(moduleId: string, status: ProgressStatus) {
+  return request<ModuleProgress>(`/api/progress/${moduleId}`, {
+    method: "POST",
+    body: JSON.stringify({ status }),
+  });
 }

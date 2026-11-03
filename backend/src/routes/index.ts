@@ -4,6 +4,7 @@ import { requireAdmin, requireAuth } from "../middlewares/auth.js";
 import { authRouter } from "./auth.routes.js";
 import { healthRouter } from "./health.routes.js";
 import { moduleRouter } from "./module.routes.js";
+import { progressRouter } from "./progress.routes.js";
 
 export const router = Router();
 
@@ -20,8 +21,7 @@ adminRouter.use(requireAuth, requireAdmin);
 router.use("/api/admin", adminRouter);
 
 // --- Zone authentifiée : requireAuth ---
-// Monter ici les futurs routers protégés (chemins relatifs à /api) :
-// protectedRouter.use("/progress", progressRouter);
 export const protectedRouter = Router();
 protectedRouter.use(requireAuth);
+protectedRouter.use("/progress", progressRouter);
 router.use("/api", protectedRouter);

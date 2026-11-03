@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { getCurrentUser, login, logout, register } from "./api";
+import { getCurrentUser, getProgress, login, logout, register, setModuleProgress } from "./api";
 
 const API_URL = "http://localhost:3001";
 
@@ -94,6 +94,38 @@ describe("getCurrentUser", () => {
     expect(fetchMock).toHaveBeenCalledWith(
       `${API_URL}/api/auth/me`,
       expect.objectContaining({ credentials: "include" }),
+    );
+  });
+});
+
+describe("getProgress", () => {
+  it("GET /api/progress et retourne la vue globale", async () => {
+    const overview = {
+      totalCount: 2,
+      doneCount: 1,
+      remainingCount: 1,
+      percentage: 50,
+      modules: [{ id: "module-1", title: "Git", displayOrder: 1, status: "done" }],
+    };
+    fetchMock.mockResolvedValue(jsonResponse(overview));
+
+    await expect(getProgress()).resolves.toEqual(overview);
+    expect(fetchMock).toHaveBeenCalledWith(
+      `${API_URL}/api/progress`,
+      expect.objectContaining({ credentials: "include" }),
+    );
+  });
+});
+
+describe("setModuleProgress", () => {
+  it("POST /api/progress/:moduleId avec le statut demande", async () => {
+    const progress = { moduleId: "module-1", status: "done", updatedAt: "2026-01-01T00:00:00.000Z" };
+    fetchMock.mockResolvedValue(jsonResponse(progress));
+
+    await expect(setModuleProgress("module-1", "done")).resolves.toEqual(progress);
+    expect(fetchMock).toHaveBeenCalledWith(
+      `${API_URL}/api/progress/module-1`,
+      expect.objectContaining({ method: "POST", body: JSON.stringify({ status: "done" }) }),
     );
   });
 });

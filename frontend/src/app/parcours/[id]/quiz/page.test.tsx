@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { createElement, type ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { ApiError, getCurrentUser, getQuiz } from "@/lib/api";
+import { ApiError, getQuiz } from "@/lib/api";
 
 import ModuleQuizPage from "./page";
 
@@ -13,6 +13,7 @@ vi.mock("next/link", () => ({
 
 vi.mock("next/navigation", () => ({
   useParams: () => ({ id: "module-1" }),
+  useRouter: () => ({ push: vi.fn() }),
 }));
 
 vi.mock("@/lib/api", async () => {
@@ -21,17 +22,14 @@ vi.mock("@/lib/api", async () => {
     ApiError: actual.ApiError,
     getQuiz: vi.fn(),
     submitQuizAttempt: vi.fn(),
-    getCurrentUser: vi.fn(),
     logout: vi.fn(),
   };
 });
 
 const getQuizMock = vi.mocked(getQuiz);
-const getCurrentUserMock = vi.mocked(getCurrentUser);
 
 beforeEach(() => {
   vi.clearAllMocks();
-  getCurrentUserMock.mockResolvedValue(null);
 });
 
 describe("Page quiz d'un module", () => {
