@@ -79,6 +79,16 @@ export default function ModuleDetailPage() {
                     </svg>
                   </Link>
                 </li>
+                <li>
+                  <Link href={`/parcours/${moduleDetail.id}/exercice`} className={styles.resourceRow}>
+                    <ResourceIcon type="exercise" />
+                    <span className={styles.resourceRowBody}>Exercice</span>
+                    <span className={styles.resourceType}>Pratique</span>
+                    <svg className={styles.moduleRowChevron} viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M9 6l6 6-6 6" />
+                    </svg>
+                  </Link>
+                </li>
               </ul>
             </section>
           </>

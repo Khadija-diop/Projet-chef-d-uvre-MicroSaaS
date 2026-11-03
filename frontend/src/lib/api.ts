@@ -60,6 +60,13 @@ export type QuizAttemptResult = {
   results: QuizResult[];
 };
 
+export type Exercise = {
+  id: string;
+  prompt: string;
+  submittedAnswer: string | null;
+  modelAnswer: string | null;
+};
+
 export class ApiError extends Error {
   readonly status: number;
 
@@ -133,4 +140,15 @@ export function submitQuizAttempt(moduleId: string, answers: QuizAnswer[]) {
     method: "POST",
     body: JSON.stringify({ answers }),
   });
+}
+
+export function getExercise(moduleId: string) {
+  return request<Exercise>(`/api/modules/${moduleId}/exercise`);
+}
+
+export function submitExercise(moduleId: string, answer: string) {
+  return request<{ submittedAnswer: string; modelAnswer: string }>(
+    `/api/modules/${moduleId}/exercise/completions`,
+    { method: "POST", body: JSON.stringify({ answer }) },
+  );
 }

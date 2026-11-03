@@ -67,7 +67,7 @@ describe("Page detail d'un module", () => {
     expect(linkLink).toHaveAttribute("href", "/parcours/module-1/ressources/resource-2");
   });
 
-  it("affiche toujours une ligne Quiz menant vers la page du quiz", async () => {
+  it("affiche toujours des lignes Quiz et Exercice menant vers leurs pages", async () => {
     getModuleMock.mockResolvedValue({
       id: "module-1",
       title: "Git essentiel",
@@ -81,6 +81,10 @@ describe("Page detail d'un module", () => {
 
     const quizLink = await screen.findByRole("link", { name: /Quiz/ });
     expect(quizLink).toHaveAttribute("href", "/parcours/module-1/quiz");
+
+    const exerciseLink = screen.getByRole("link", { name: /Exercice/ });
+    expect(exerciseLink).toHaveAttribute("href", "/parcours/module-1/exercice");
+
     expect(screen.getByText("Aucune ressource n'est associee a ce module.")).toBeInTheDocument();
   });
 

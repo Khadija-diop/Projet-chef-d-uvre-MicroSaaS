@@ -546,6 +546,82 @@ const quizzes: Record<string, QuizQuestionSeed[]> = {
   ],
 };
 
+type ExerciseSeed = { prompt: string; modelAnswer: string };
+
+/**
+ * Un exercice par module, concret sur ce depot (dogfooding, issue #84). Pas d'execution
+ * de code : l'apprenant s'auto-corrige en comparant sa reponse a modelAnswer, revele
+ * seulement apres soumission.
+ */
+const exercises: Record<keyof typeof lessons, ExerciseSeed> = {
+  linux: {
+    prompt:
+      "Depuis un terminal, place-toi dans le dossier `backend` de ce projet, liste tous les fichiers (y compris caches) avec leurs permissions, puis trouve tous les fichiers `.ts` du dossier `src` qui contiennent le mot `AppError`. Note les deux commandes utilisees.",
+    modelAnswer:
+      "`cd backend && ls -la` liste les fichiers du dossier courant, y compris les caches (ceux qui commencent par un point), avec leurs permissions. Pour chercher `AppError` dans les fichiers `.ts` : `grep -r \"AppError\" src --include=\"*.ts\"` (ou `grep -rl` pour n'afficher que les noms de fichiers). Le flag `-r` rend la recherche recursive, `--include` filtre par extension.",
+  },
+  git: {
+    prompt:
+      "Sur une copie locale de ce depot, cree une branche nommee `exercice-git`, modifie un fichier, commite le changement avec un message clair, puis affiche l'historique sous forme compacte. Note les commandes utilisees, dans l'ordre.",
+    modelAnswer:
+      "`git checkout -b exercice-git` cree et bascule sur la nouvelle branche. Apres modification : `git add <fichier>` puis `git commit -m \"message qui explique le pourquoi du changement\"`. Enfin `git log --oneline --graph` affiche l'historique de maniere compacte et lisible.",
+  },
+  docker: {
+    prompt:
+      "Ecris un Dockerfile multi-stage pour le backend de ce projet (Node/Express/TypeScript) : une etape \"build\" qui installe les dependances et compile le TypeScript, et une etape finale plus legere qui ne contient que le code compile et les dependances de production. Decris le contenu des deux etapes.",
+    modelAnswer:
+      "Etape build : `FROM node:22-alpine AS build`, `WORKDIR /app`, `COPY package*.json ./`, `RUN npm ci`, `COPY . .`, `RUN npm run build` (produit `dist/`). Etape finale : `FROM node:22-alpine`, `WORKDIR /app`, `COPY package*.json ./`, `RUN npm ci --omit=dev`, `COPY --from=build /app/dist ./dist`, puis `CMD [\"node\", \"dist/server.js\"]`. Separer les deux etapes evite d'embarquer les devDependencies et les sources TypeScript dans l'image finale, qui reste donc plus legere et avec une surface d'attaque reduite.",
+  },
+  podman: {
+    prompt:
+      "En supposant que le Dockerfile de l'exercice precedent existe, quelles commandes Podman permettent de le construire puis de lancer le conteneur en exposant le port 3001 ? Explique en une phrase la difference avec l'equivalent Docker.",
+    modelAnswer:
+      "`podman build -t parcours-backend .` construit l'image, puis `podman run -p 3001:3001 parcours-backend` lance le conteneur, syntaxe quasiment identique a Docker. La difference principale : ces commandes s'executent par defaut sans privileges administrateur et sans demon en arriere-plan, donc un conteneur compromis a moins de droits sur la machine hote.",
+  },
+  ci: {
+    prompt:
+      "Dans `.github/workflows/ci.yml` de ce projet, identifie l'ordre des etapes du job backend. Pourquoi lint et typecheck sont-elles placees avant test et build, et que se passe-t-il si lint echoue ?",
+    modelAnswer:
+      "L'ordre est : `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`. Lint et typecheck sont rapides (pas de compilation ni de base de donnees) alors que test et build sont plus couteux : les placer en premier donne un retour rapide en cas d'erreur evidente. Si lint echoue, le job s'arrete a cette etape : typecheck, test et build ne sont pas executes, et le workflow est marque en echec.",
+  },
+  cd: {
+    prompt:
+      "Ce projet n'a pas encore de deploiement continu automatise. Decris en quelques etapes ce qu'un workflow de deploiement continu ajouterait apres que la CI ait reussi sur `master`, pour ce projet precis (backend Express + frontend Next.js).",
+    modelAnswer:
+      "Apres une CI verte sur `master` : construire les images Docker (backend et frontend), les publier sur un registre, puis se connecter au serveur cible pour tirer les nouvelles images et redemarrer les conteneurs. Avant de couper l'ancienne version, verifier que la nouvelle repond correctement (par exemple via `GET /health`). Prevoir aussi un rollback rapide vers l'image precedente en cas de probleme.",
+  },
+  iac: {
+    prompt:
+      "Ce projet decrit sa base Postgres avec Docker Compose en local. Si tu devais la decrire avec Terraform pour un hebergeur cloud, quelles informations la ressource devrait-elle contenir au minimum, et pourquoi executer `terraform plan` avant `terraform apply` ?",
+    modelAnswer:
+      "Au minimum : le type d'instance, la version de PostgreSQL, les identifiants de connexion (via un gestionnaire de secrets, jamais en clair), la taille de stockage, et les regles reseau qui n'autorisent que le backend a s'y connecter. `terraform plan` affiche les changements prevus sans rien modifier : cela evite par exemple de supprimer accidentellement une base existante avant de valider avec `terraform apply`.",
+  },
+  ansible: {
+    prompt:
+      "Decris les grandes lignes (sans le YAML complet) d'un playbook Ansible qui installerait Node.js 22 et cloneraient ce depot sur un serveur cible nomme \"web\".",
+    modelAnswer:
+      "Un inventaire listerait le groupe `web` avec l'adresse du serveur cible. Le playbook ciblerait ce groupe (`hosts: web`) avec des taches : mettre a jour le cache des paquets, installer Node.js 22, installer Git si absent, puis cloner ce depot avec le module `git` (`repo`, `dest`, `version`). Chaque tache doit etre idempotente : relancer le playbook plusieurs fois ne doit rien casser.",
+  },
+  monitoring: {
+    prompt:
+      "Ce projet expose deja `GET /health`. Que devrait repondre cet endpoint pour etre vraiment utile a un outil de supervision (au-dela de juste repondre 200), et quelles 2-3 metriques simples seraient pertinentes pour ce backend precis ?",
+    modelAnswer:
+      "Un `/health` utile verifie reellement les dependances critiques (par exemple une requete simple vers Postgres) et renvoie un code d'erreur explicite si l'une d'elles ne repond pas. Pour ce backend : le temps de reponse moyen des routes API, le taux d'erreurs 5xx, et le nombre de requetes bloquees par le rate limiting sur `/api/auth` (un pic peut signaler une tentative de force brute).",
+  },
+  securiteWeb: {
+    prompt:
+      "Dans ce code : `app.innerHTML = \"Bienvenue \" + userInput;` quelle vulnerabilite cela introduit-il, et comment ce projet evite-t-il ce probleme dans ses propres pages (regarde comment `lesson-content.tsx` affiche du texte) ?",
+    modelAnswer:
+      "C'est une faille XSS : si `userInput` contient du HTML/JavaScript, il serait execute dans le navigateur de la victime au lieu d'etre affiche comme texte. Ce projet laisse React afficher le texte via `{variable}` dans le JSX, ce qui echappe automatiquement le contenu — et `lesson-content.tsx` interprete seulement un format markdown-lite restreint, sans jamais utiliser `dangerouslySetInnerHTML`.",
+  },
+  securiteDevops: {
+    prompt:
+      "Un service de CI a besoin d'un token GitHub pour publier des releases. Ou ce token doit-il etre stocke pour ce projet, et que verifies-tu avant de committer un changement sur `backend/.env.example` pour eviter d'y laisser fuiter un vrai secret ?",
+    modelAnswer:
+      "Le token doit etre stocke comme secret chiffre dans les parametres du depot GitHub (Settings > Secrets and variables > Actions), jamais en clair dans un fichier versionne, et reference via `secrets.NOM_DU_SECRET`. Avant de committer `backend/.env.example` : verifier qu'il ne contient que des noms de variables avec des valeurs placeholder, jamais une vraie valeur copiee depuis un `.env` local, et relire le diff une derniere fois.",
+  },
+};
+
 /**
  * Les 3 ressources d'un module (article redige, video existante, check-list originale),
  * dans cet ordre d'affichage, plus le quiz qui les evalue (issue #83/#84).
@@ -567,6 +643,7 @@ const modules = [
     publicationStatus: "published" as const,
     resources: moduleResources("linux"),
     quiz: quizzes.linux,
+    exercise: exercises.linux,
   },
   {
     displayOrder: 2,
@@ -576,6 +653,7 @@ const modules = [
     publicationStatus: "published" as const,
     resources: moduleResources("git"),
     quiz: quizzes.git,
+    exercise: exercises.git,
   },
   {
     displayOrder: 3,
@@ -585,6 +663,7 @@ const modules = [
     publicationStatus: "published" as const,
     resources: moduleResources("docker"),
     quiz: quizzes.docker,
+    exercise: exercises.docker,
   },
   {
     displayOrder: 4,
@@ -594,6 +673,7 @@ const modules = [
     publicationStatus: "published" as const,
     resources: moduleResources("podman"),
     quiz: quizzes.podman,
+    exercise: exercises.podman,
   },
   {
     displayOrder: 5,
@@ -603,6 +683,7 @@ const modules = [
     publicationStatus: "published" as const,
     resources: moduleResources("ci"),
     quiz: quizzes.ci,
+    exercise: exercises.ci,
   },
   {
     displayOrder: 6,
@@ -612,6 +693,7 @@ const modules = [
     publicationStatus: "published" as const,
     resources: moduleResources("cd"),
     quiz: quizzes.cd,
+    exercise: exercises.cd,
   },
   {
     displayOrder: 7,
@@ -621,6 +703,7 @@ const modules = [
     publicationStatus: "draft" as const,
     resources: moduleResources("iac"),
     quiz: quizzes.iac,
+    exercise: exercises.iac,
   },
   {
     displayOrder: 8,
@@ -630,6 +713,7 @@ const modules = [
     publicationStatus: "published" as const,
     resources: moduleResources("ansible"),
     quiz: quizzes.ansible,
+    exercise: exercises.ansible,
   },
   {
     displayOrder: 9,
@@ -639,6 +723,7 @@ const modules = [
     publicationStatus: "published" as const,
     resources: moduleResources("monitoring"),
     quiz: quizzes.monitoring,
+    exercise: exercises.monitoring,
   },
   {
     displayOrder: 10,
@@ -648,6 +733,7 @@ const modules = [
     publicationStatus: "published" as const,
     resources: moduleResources("securiteWeb"),
     quiz: quizzes.securiteWeb,
+    exercise: exercises.securiteWeb,
   },
   {
     displayOrder: 11,
@@ -657,6 +743,7 @@ const modules = [
     publicationStatus: "hidden" as const,
     resources: moduleResources("securiteDevops"),
     quiz: quizzes.securiteDevops,
+    exercise: exercises.securiteDevops,
   },
 ];
 
@@ -708,6 +795,18 @@ async function upsertQuiz(moduleId: string, questions: QuizQuestionSeed[]) {
   }
 }
 
+/**
+ * Recree l'exercice d'un module a chaque execution, meme principe que upsertQuiz :
+ * le contenu peut changer d'une execution a l'autre.
+ */
+async function upsertExercise(moduleId: string, { prompt, modelAnswer }: ExerciseSeed) {
+  await prisma.exercise.upsert({
+    where: { moduleId },
+    update: { prompt, modelAnswer },
+    create: { moduleId, prompt, modelAnswer },
+  });
+}
+
 async function main() {
   
   if (process.env.NODE_ENV === "production") {
@@ -732,7 +831,7 @@ async function main() {
     await prisma.module.update({ where: { id: existing.id }, data: { displayOrder: -(index + 1) } });
   }
 
-  for (const { resources, quiz, ...module } of modules) {
+  for (const { resources, quiz, exercise, ...module } of modules) {
     const createdModule = await prisma.module.upsert({
       where: { title: module.title },
       update: module,
@@ -753,6 +852,7 @@ async function main() {
     }
 
     await upsertQuiz(createdModule.id, quiz);
+    await upsertExercise(createdModule.id, exercise);
   }
 
   // Supprime les ressources qui ne sont plus rattachees a aucun module (anciens placeholders).

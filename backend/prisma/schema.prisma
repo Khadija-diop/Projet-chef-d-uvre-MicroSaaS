@@ -43,15 +43,16 @@ model Role {
 }
 
 model User {
-  id           String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  email        String        @unique
-  passwordHash String        @map("password_hash")
-  roleId       String        @map("role_id") @db.Uuid
-  role         Role          @relation(fields: [roleId], references: [id])
-  createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt    DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
-  progress     Progress[]
-  quizAttempts QuizAttempt[]
+  id                  String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email               String               @unique
+  passwordHash        String               @map("password_hash")
+  roleId              String               @map("role_id") @db.Uuid
+  role                Role                 @relation(fields: [roleId], references: [id])
+  createdAt           DateTime             @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime             @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  progress            Progress[]
+  quizAttempts        QuizAttempt[]
+  exerciseCompletions ExerciseCompletion[]
 
   @@index([roleId], map: "idx_users_role_id")
   @@map("users")
@@ -69,6 +70,7 @@ model Module {
   resources         ModuleResource[]
   progress          Progress[]
   quiz              Quiz?
+  exercise          Exercise?
 
   @@index([publicationStatus], map: "idx_modules_publication_status")
   @@map("modules")
@@ -122,6 +124,33 @@ model QuizAttempt {
   @@index([userId], map: "idx_quiz_attempts_user_id")
   @@index([quizId], map: "idx_quiz_attempts_quiz_id")
   @@map("quiz_attempts")
+}
+
+model Exercise {
+  id          String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  moduleId    String               @unique @map("module_id") @db.Uuid
+  module      Module               @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  prompt      String
+  modelAnswer String               @map("model_answer")
+  createdAt   DateTime             @default(now()) @map("created_at") @db.Timestamptz
+  completions ExerciseCompletion[]
+
+  @@map("exercises")
+}
+
+model ExerciseCompletion {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId          String   @map("user_id") @db.Uuid
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exerciseId      String   @map("exercise_id") @db.Uuid
+  exercise        Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  submittedAnswer String   @map("submitted_answer")
+  completedAt     DateTime @default(now()) @map("completed_at") @db.Timestamptz
+
+  @@unique([userId, exerciseId])
+  @@index([userId], map: "idx_exercise_completions_user_id")
+  @@index([exerciseId], map: "idx_exercise_completions_exercise_id")
+  @@map("exercise_completions")
 }
 
 model Resource {
