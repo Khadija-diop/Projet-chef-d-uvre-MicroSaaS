@@ -1,4 +1,4 @@
-import type { Prisma } from "@prisma/client";
+import type { Module, Prisma } from "@prisma/client";
 import argon2 from "argon2";
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -27,6 +27,20 @@ function fakeUser(overrides: Partial<UserWithRole> = {}): UserWithRole {
     passwordHash: "hashed",
     roleId: "role-learner",
     role: { id: "role-learner", code: "learner", libelle: "Apprenant", description: null },
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    ...overrides,
+  };
+}
+
+function fakeModule(overrides: Partial<Module> = {}): Module {
+  return {
+    id: "module-1",
+    title: "Git essentiel",
+    shortDescription: "Les bases de Git",
+    learningObjective: "Savoir versionner son code",
+    displayOrder: 1,
+    publicationStatus: "published",
     createdAt: new Date(),
     updatedAt: new Date(),
     ...overrides,
@@ -115,5 +129,81 @@ describe("POST /api/progress/:moduleId", () => {
 
     expect(response.status).toBe(404);
     expect(mockedProgressRepo.upsertProgress).not.toHaveBeenCalled();
+  });
+});
+
+describe("GET /api/progress", () => {
+  it("renvoie 401 sans session", async () => {
+    const response = await request(app).get("/api/progress");
+
+    expect(response.status).toBe(401);
+  });
+
+  it("considere todo les modules sans ligne progress, avec 0% de progression", async () => {
+    mockedModuleRepo.findPublishedModules.mockResolvedValue([
+      fakeModule({ id: "module-1", displayOrder: 1, title: "Linux" }),
+      fakeModule({ id: "module-2", displayOrder: 2, title: "Git" }),
+    ]);
+    mockedProgressRepo.findProgressByUserId.mockResolvedValue([]);
+    const agent = await loginAgent();
+
+    const response = await agent.get("/api/progress");
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      totalCount: 2,
+      doneCount: 0,
+      remainingCount: 2,
+      percentage: 0,
+      modules: [
+        { id: "module-1", title: "Linux", displayOrder: 1, status: "todo" },
+        { id: "module-2", title: "Git", displayOrder: 2, status: "todo" },
+      ],
+    });
+  });
+
+  it("calcule le pourcentage et les compteurs a partir des lignes progress existantes", async () => {
+    mockedModuleRepo.findPublishedModules.mockResolvedValue([
+      fakeModule({ id: "module-1", displayOrder: 1, title: "Linux" }),
+      fakeModule({ id: "module-2", displayOrder: 2, title: "Git" }),
+      fakeModule({ id: "module-3", displayOrder: 3, title: "Docker" }),
+    ]);
+    mockedProgressRepo.findProgressByUserId.mockResolvedValue([
+      { userId: "user-1", moduleId: "module-1", status: "done", updatedAt: new Date() },
+      { userId: "user-1", moduleId: "module-2", status: "in_progress", updatedAt: new Date() },
+    ]);
+    const agent = await loginAgent();
+
+    const response = await agent.get("/api/progress");
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      totalCount: 3,
+      doneCount: 1,
+      remainingCount: 2,
+      percentage: 33,
+      modules: [
+        { id: "module-1", title: "Linux", displayOrder: 1, status: "done" },
+        { id: "module-2", title: "Git", displayOrder: 2, status: "in_progress" },
+        { id: "module-3", title: "Docker", displayOrder: 3, status: "todo" },
+      ],
+    });
+  });
+
+  it("renvoie 0% sans erreur quand il n'y a aucun module publie", async () => {
+    mockedModuleRepo.findPublishedModules.mockResolvedValue([]);
+    mockedProgressRepo.findProgressByUserId.mockResolvedValue([]);
+    const agent = await loginAgent();
+
+    const response = await agent.get("/api/progress");
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      totalCount: 0,
+      doneCount: 0,
+      remainingCount: 0,
+      percentage: 0,
+      modules: [],
+    });
   });
 });

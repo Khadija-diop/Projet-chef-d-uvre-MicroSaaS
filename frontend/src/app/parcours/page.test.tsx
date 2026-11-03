@@ -2,31 +2,37 @@ import { render, screen } from "@testing-library/react";
 import { createElement, type ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { getCurrentUser, listModules } from "@/lib/api";
+import { getProgress, listModules } from "@/lib/api";
 
 import ParcoursPage from "./page";
 
 vi.mock("next/link", () => ({
-  default: ({ href, children }: { href: string; children: ReactNode }) =>
-    createElement("a", { href }, children),
+  default: ({ href, children, ...rest }: { href: string; children: ReactNode } & Record<string, unknown>) =>
+    createElement("a", { href, ...rest }, children),
+}));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn() }),
 }));
 
 vi.mock("@/lib/api", () => ({
   listModules: vi.fn(),
-  getCurrentUser: vi.fn(),
+  getProgress: vi.fn(),
   logout: vi.fn(),
 }));
 
 const listModulesMock = vi.mocked(listModules);
-const getCurrentUserMock = vi.mocked(getCurrentUser);
+const getProgressMock = vi.mocked(getProgress);
+
+const emptyOverview = { totalCount: 0, doneCount: 0, remainingCount: 0, percentage: 0, modules: [] };
 
 beforeEach(() => {
   vi.clearAllMocks();
-  getCurrentUserMock.mockResolvedValue(null);
+  getProgressMock.mockResolvedValue(emptyOverview);
 });
 
 describe("Page liste des modules", () => {
-  it("affiche les modules tries par ordre d'affichage", async () => {
+  it("affiche les modules tries par ordre d'affichage avec leur statut", async () => {
     listModulesMock.mockResolvedValue([
       {
         id: "module-1",
@@ -43,14 +49,31 @@ describe("Page liste des modules", () => {
         displayOrder: 2,
       },
     ]);
+    getProgressMock.mockResolvedValue({
+      totalCount: 2,
+      doneCount: 1,
+      remainingCount: 1,
+      percentage: 50,
+      modules: [{ id: "module-1", title: "Git essentiel", displayOrder: 1, status: "done" }],
+    });
 
     render(<ParcoursPage />);
 
     expect(await screen.findByText("Git essentiel")).toBeInTheDocument();
     expect(screen.getByText("CI/CD")).toBeInTheDocument();
-    const links = screen.getAllByRole("link", { name: "Voir le detail" });
+    expect(screen.getByText("Terminé")).toBeInTheDocument();
+    expect(screen.getByText("À faire")).toBeInTheDocument();
+    expect(screen.getByText("50%")).toBeInTheDocument();
+
+    const links = screen.getAllByRole("link", { name: /Git essentiel|CI\/CD/ });
     expect(links[0]).toHaveAttribute("href", "/parcours/module-1");
     expect(links[1]).toHaveAttribute("href", "/parcours/module-2");
+
+    expect(screen.getByRole("link", { name: "Liste des modules" })).toHaveAttribute("href", "/parcours");
+    expect(screen.getByRole("link", { name: "Ma progression" })).toHaveAttribute(
+      "href",
+      "/parcours/progression",
+    );
   });
 
   it("affiche un message quand aucun module n'est publie", async () => {

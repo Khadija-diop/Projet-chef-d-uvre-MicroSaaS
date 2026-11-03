@@ -9,3 +9,7 @@ export function upsertProgress(userId: string, moduleId: string, status: Progres
     create: { userId, moduleId, status },
   });
 }
+
+export function findProgressByUserId(userId: string) {
+  return prisma.progress.findMany({ where: { userId } });
+}

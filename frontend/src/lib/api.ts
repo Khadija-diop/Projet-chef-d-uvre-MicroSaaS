@@ -25,6 +25,22 @@ export type ModuleDetail = ModuleSummary & {
   resources: ModuleResourceItem[];
 };
 
+export type ProgressStatus = "todo" | "in_progress" | "done";
+
+export type ModuleProgress = {
+  moduleId: string;
+  status: ProgressStatus;
+  updatedAt: string;
+};
+
+export type ProgressOverview = {
+  totalCount: number;
+  doneCount: number;
+  remainingCount: number;
+  percentage: number;
+  modules: Array<{ id: string; title: string; displayOrder: number; status: ProgressStatus }>;
+};
+
 class ApiError extends Error {}
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -80,4 +96,15 @@ export function listModules() {
 
 export function getModule(id: string) {
   return request<ModuleDetail>(`/api/modules/${id}`);
+}
+
+export function getProgress() {
+  return request<ProgressOverview>("/api/progress");
+}
+
+export function setModuleProgress(moduleId: string, status: ProgressStatus) {
+  return request<ModuleProgress>(`/api/progress/${moduleId}`, {
+    method: "POST",
+    body: JSON.stringify({ status }),
+  });
 }
