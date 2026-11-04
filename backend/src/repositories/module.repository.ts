@@ -59,3 +59,8 @@ export function createModule(data: Prisma.ModuleCreateInput) {
 export function updateModule(id: string, data: Prisma.ModuleUpdateInput) {
   return prisma.module.update({ where: { id }, data, include: moduleWithResources });
 }
+
+export async function moduleExists(id: string) {
+  const module = await prisma.module.findUnique({ where: { id }, select: { id: true } });
+  return module !== null;
+}

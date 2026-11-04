@@ -2,6 +2,7 @@ import { Router } from "express";
 
 import { requireAdmin, requireAuth } from "../middlewares/auth.js";
 import { adminModuleRouter } from "./adminModule.routes.js";
+import { adminResourceRouter } from "./adminResource.routes.js";
 import { authRouter } from "./auth.routes.js";
 import { healthRouter } from "./health.routes.js";
 import { moduleRouter } from "./module.routes.js";
@@ -18,6 +19,7 @@ router.use("/api/modules", moduleRouter);
 // Routers réservés au rôle "admin" (chemins relatifs à /api/admin).
 export const adminRouter = Router();
 adminRouter.use(requireAuth, requireAdmin);
+adminRouter.use("/modules/:id/resources", adminResourceRouter);
 adminRouter.use("/modules", adminModuleRouter);
 router.use("/api/admin", adminRouter);
 
