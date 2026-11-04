@@ -1,6 +1,7 @@
 import { Router } from "express";
 
 import { requireAdmin, requireAuth } from "../middlewares/auth.js";
+import { adminModuleRouter } from "./adminModule.routes.js";
 import { authRouter } from "./auth.routes.js";
 import { healthRouter } from "./health.routes.js";
 import { moduleRouter } from "./module.routes.js";
@@ -14,10 +15,10 @@ router.use("/api/auth", authRouter);
 router.use("/api/modules", moduleRouter);
 
 // --- Zone administration : requireAuth + requireAdmin ---
-// Monter ici les futurs routers réservés au rôle "admin" (chemins relatifs à
-// /api/admin) : adminRouter.use("/modules", adminModulesRouter);
+// Routers réservés au rôle "admin" (chemins relatifs à /api/admin).
 export const adminRouter = Router();
 adminRouter.use(requireAuth, requireAdmin);
+adminRouter.use("/modules", adminModuleRouter);
 router.use("/api/admin", adminRouter);
 
 // --- Zone authentifiée : requireAuth ---
